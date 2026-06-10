@@ -113,15 +113,15 @@ export default function ProductFormPanel({ state, onClose, onSubmit }: Props) {
 
   return (
     <div
-      className={`fixed inset-0 z-40 ${state.open ? '' : 'pointer-events-none'}`}
+      className={`fixed inset-0 z-50 ${state.open ? '' : 'pointer-events-none'}`}
       role="dialog"
       aria-modal={state.open}
       aria-label={title}
     >
-      {/* Overlay */}
+      {/* Overlay — must be pointer-events-none when closed so it doesn't block the panel below */}
       <div
         className={`absolute inset-0 bg-hap-text/40 transition-opacity duration-300 ${
-          state.open ? 'opacity-100' : 'opacity-0'
+          state.open ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
       />

@@ -278,7 +278,7 @@ export default function AdminDashboard({
       <button
         onClick={() => setPanelState({ open: true, mode: 'add' })}
         aria-label="Add product"
-        className="md:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full bg-brand text-white text-2xl shadow-modal hover:bg-accent transition-colors flex items-center justify-center z-20"
+        className="md:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full bg-brand text-white text-2xl shadow-modal hover:bg-accent transition-colors flex items-center justify-center z-40"
       >
         +
       </button>

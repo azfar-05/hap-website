@@ -22,7 +22,7 @@ export default function DeleteDialog({ state, isDeleting, onCancel, onConfirm }:
     >
       <div
         className={`absolute inset-0 bg-hap-text/40 transition-opacity duration-200 ${
-          state.open ? 'opacity-100' : 'opacity-0'
+          state.open ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onCancel}
       />
