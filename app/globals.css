@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: #F5EFE6;
+  --color-surface: #FDF8F2;
+  --color-surface-hover: #F0E8DE;
+  --color-brand: #A07070;
+  --color-accent: #C4967A;
+  --color-text: #2C1F1F;
+  --color-muted: #7A6259;
+  --color-border: #E0D5C8;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-dm-sans), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    min-height: 100dvh;
+  }
+
+  /* Hide scrollbar on filter bar and similar horizontal-scroll containers */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@layer components {
+  /* Image fade-in on load */
+  .img-fade {
+    opacity: 0;
+    transition: opacity 300ms ease;
+  }
+  .img-fade.loaded {
+    opacity: 1;
+  }
+}
