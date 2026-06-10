@@ -45,6 +45,9 @@ const config: Config = {
       maxWidth: {
         content: "1200px",
       },
+      height: {
+        "hero-desktop": "85vh",
+      },
       spacing: {
         "section-mobile": "48px",
         "section-desktop": "80px",
