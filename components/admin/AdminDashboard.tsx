@@ -61,7 +61,10 @@ export default function AdminDashboard({
 
   async function uploadImage(file: File): Promise<string> {
     const ext = file.name.split('.').pop() ?? 'jpg'
-    const path = `products/${crypto.randomUUID()}.${ext}`
+    const uid = typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+    const path = `products/${uid}.${ext}`
     const { error } = await supabase.storage
       .from('product-images')
       .upload(path, file, { cacheControl: '3600' })
