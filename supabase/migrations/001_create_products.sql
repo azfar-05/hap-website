@@ -34,12 +34,21 @@ CREATE INDEX products_featured_idx ON products (featured) WHERE featured = true;
 -- ============================================================
 
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+-- Do NOT use FORCE ROW LEVEL SECURITY — it blocks the table owner role used
+-- by Supabase's own dashboard and service-role client.
 
 -- Anon (public) — read-only
 CREATE POLICY "products: anon select"
   ON products
   FOR SELECT
   TO anon
+  USING (true);
+
+-- Authenticated (admin) — read access (needed when admin is browsing the catalog)
+CREATE POLICY "products: authenticated select"
+  ON products
+  FOR SELECT
+  TO authenticated
   USING (true);
 
 -- Authenticated (admin) — full write access
