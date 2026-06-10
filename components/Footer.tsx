@@ -5,7 +5,7 @@ export default function Footer() {
   const whatsappHref = whatsapp ? `https://wa.me/${whatsapp}` : "#";
 
   return (
-    <footer className="bg-hap-text">
+    <footer className="bg-hap-text border-t-2 border-brand/30">
       <div className="max-w-content mx-auto px-6 md:px-10 py-12 md:py-16">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
           {/* Brand */}
@@ -21,7 +21,7 @@ export default function Footer() {
           {/* Links */}
           <nav className="flex gap-8 items-center">
             <Link
-              href="https://instagram.com"
+              href="https://www.instagram.com/homesandplates?igsh=MWt1YnM5YW9nd2VkdA=="
               target="_blank"
               rel="noopener noreferrer"
               className="font-body text-small font-medium tracking-[0.1em] uppercase text-bg/60 hover:text-bg transition-colors duration-200"
@@ -29,12 +29,20 @@ export default function Footer() {
               Instagram
             </Link>
             <Link
+              href="https://chat.whatsapp.com/LyP7SwZCdzkJYvh2ljUUmJ?s=cl&p=i&ilr=4"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-body text-small font-medium tracking-[0.1em] uppercase text-bg/60 hover:text-bg transition-colors duration-200"
+            >
+              Whatsapp
+            </Link>
+            <Link
               href={whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
               className="font-body text-small font-medium tracking-[0.1em] uppercase text-bg/60 hover:text-bg transition-colors duration-200"
             >
-              WhatsApp
+              Contact
             </Link>
           </nav>
         </div>

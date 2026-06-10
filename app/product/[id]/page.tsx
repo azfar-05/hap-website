@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import ImageGallery from "@/components/ImageGallery";
+import ProductCard from "@/components/ProductCard";
 import type { Metadata } from "next";
 import type { Product } from "@/types/database.types";
 
@@ -50,6 +51,14 @@ export default async function ProductDetailPage({ params }: Props) {
   const product: Product | null = productResponse.data as Product | null;
 
   if (!product) notFound();
+
+  const { data: relatedData } = await supabase
+    .from("products")
+    .select("*")
+    .eq("category", product.category)
+    .neq("id", product.id)
+    .limit(3);
+  const relatedProducts: Product[] = (relatedData as Product[] | null) ?? [];
 
   const label = CATEGORY_LABELS[product.category] ?? product.category;
   const price = new Intl.NumberFormat("en-IN", {
@@ -140,19 +149,33 @@ export default async function ProductDetailPage({ params }: Props) {
                   href={waUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2.5 w-full font-body text-body font-semibold text-surface bg-brand hover:bg-accent transition-colors duration-200 py-3.5 px-6 rounded-btn"
+                  className="flex items-center justify-center gap-2.5 w-full font-body text-body font-semibold text-surface bg-brand hover:bg-accent transition-colors duration-200 py-4 px-6 rounded-btn"
                 >
                   <WhatsAppIcon />
                   Enquire on WhatsApp
                 </a>
               ) : (
-                <div className="flex items-center justify-center gap-2.5 w-full font-body text-body font-semibold text-muted bg-border py-3.5 px-6 rounded-btn cursor-not-allowed select-none">
+                <div className="flex items-center justify-center gap-2.5 w-full font-body text-body font-semibold text-muted bg-border py-4 px-6 rounded-btn cursor-not-allowed select-none">
                   <WhatsAppIcon className="opacity-40" />
                   Currently Unavailable
                 </div>
               )}
             </div>
           </div>
+
+          {/* More from this category */}
+          {relatedProducts.length > 0 && (
+            <div className="mt-16 md:mt-24 pt-10 border-t border-border">
+              <h2 className="font-display text-h2 text-hap-text tracking-[0.02em] mb-8 border-l-2 border-brand pl-4">
+                More {CATEGORY_LABELS[product.category] ?? product.category}
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                {relatedProducts.map((related) => (
+                  <ProductCard key={related.id} product={related} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </main>
 

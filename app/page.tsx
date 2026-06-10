@@ -27,7 +27,7 @@ export default async function HomePage() {
         {featuredProducts.length > 0 && (
           <section className="py-section-mobile md:py-section-desktop bg-bg">
             <div className="max-w-content mx-auto px-6 md:px-10">
-              <h2 className="font-display text-h2 text-hap-text tracking-[0.03em] mb-10 md:mb-14">
+              <h2 className="font-display text-h2 text-hap-text tracking-[0.03em] mb-10 md:mb-14 border-l-2 border-brand pl-4">
                 Featured Pieces
               </h2>
 

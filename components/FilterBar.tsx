@@ -22,7 +22,7 @@ export default function FilterBar({ active, onChange }: Props) {
   return (
     /* Outer div owns the scroll; inner div is content-width centered so
        pills align with the page grid on wide screens. */
-    <div className="overflow-x-auto no-scrollbar border-b border-border">
+    <div className="sticky top-[64px] md:top-[72px] z-40 bg-bg overflow-x-auto no-scrollbar border-b border-border">
       <div
         role="tablist"
         aria-label="Filter by category"

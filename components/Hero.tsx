@@ -18,11 +18,11 @@ export default function Hero({ featuredProducts }: Props) {
           within the column and the nav sits above — no extra nudge needed.
           On mobile, pt-nav-mobile clears the fixed nav.
         */}
-        <p className="font-body text-small font-medium tracking-[0.2em] uppercase text-accent mb-5">
+        <p className="font-body text-xs tracking-widest uppercase text-brand mb-5">
           homes and plates
         </p>
 
-        <h1 className="font-display text-display text-hap-text tracking-[0.02em] mb-6">
+        <h1 className="font-display text-5xl sm:text-6xl md:text-display text-hap-text leading-[1.1] tracking-tight md:tracking-[0.02em] mb-6">
           Beautiful things
           <br />
           for everyday living.
@@ -41,15 +41,79 @@ export default function Hero({ featuredProducts }: Props) {
         </Link>
       </div>
 
-      {/* ─── Collage column ─── */}
-      <div className="h-[44vh] flex-none md:h-auto md:flex-1 relative overflow-hidden">
-        {collageItems.length > 0 ? (
-          <Collage items={collageItems} />
-        ) : (
-          <CollagePlaceholder />
-        )}
+      {/* ─── Image column ─── */}
+      <div className="flex-none md:flex-1 relative md:overflow-hidden">
+        {/* Mobile: asymmetric stacked collage */}
+        <div className="md:hidden pb-10">
+          {collageItems.length > 0 ? (
+            <MobileCollage items={collageItems} />
+          ) : (
+            <MobileCollagePlaceholder />
+          )}
+        </div>
+
+        {/* Desktop: original asymmetric collage — top-nav-desktop pushes it below the fixed nav */}
+        <div className="hidden md:block absolute inset-0 md:top-nav-desktop overflow-hidden">
+          {collageItems.length > 0 ? (
+            <Collage items={collageItems} />
+          ) : (
+            <CollagePlaceholder />
+          )}
+        </div>
       </div>
     </section>
+  );
+}
+
+// ─── Mobile: stacked overlapping collage ─────────────────────────────────────
+
+function MobileCollage({ items }: { items: Product[] }) {
+  return (
+    <div className="relative overflow-visible mx-4 mt-8">
+      {items[0]?.images[0] && (
+        <div className="relative w-full aspect-[4/3] rotate-1 rounded-2xl overflow-hidden shadow-card-hover">
+          <FadingImage
+            src={items[0].images[0]}
+            alt={items[0].name}
+            fill
+            sizes="90vw"
+            className="object-cover"
+          />
+        </div>
+      )}
+      {items[1]?.images[0] && (
+        <div className="relative w-3/4 ml-auto aspect-[3/4] -rotate-2 -mt-8 rounded-2xl overflow-hidden shadow-card-rest">
+          <FadingImage
+            src={items[1].images[0]}
+            alt={items[1].name}
+            fill
+            sizes="70vw"
+            className="object-cover"
+          />
+        </div>
+      )}
+      {items[2]?.images[0] && (
+        <div className="relative w-2/3 aspect-[4/3] rotate-1 -mt-6 rounded-2xl overflow-hidden shadow-card-rest">
+          <FadingImage
+            src={items[2].images[0]}
+            alt={items[2].name}
+            fill
+            sizes="60vw"
+            className="object-cover"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MobileCollagePlaceholder() {
+  return (
+    <div className="relative overflow-visible mx-4 mt-8">
+      <div className="relative w-full aspect-[4/3] rotate-1 rounded-2xl overflow-hidden shadow-card-hover bg-gradient-to-br from-[#E8D5C4] to-[#C4967A]" />
+      <div className="relative w-3/4 ml-auto aspect-[3/4] -rotate-2 -mt-8 rounded-2xl overflow-hidden shadow-card-rest bg-gradient-to-br from-[#E8D5C4] to-[#C4967A]" />
+      <div className="relative w-2/3 aspect-[4/3] rotate-1 -mt-6 rounded-2xl overflow-hidden shadow-card-rest bg-gradient-to-br from-[#E8D5C4] to-[#C4967A]" />
+    </div>
   );
 }
 

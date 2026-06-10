@@ -24,15 +24,17 @@ export default async function CatalogPage() {
     <>
       <Navigation />
 
-      <main className="pt-nav-mobile md:pt-nav-desktop min-h-screen">
-        {/* Page header */}
-        <div className="max-w-content mx-auto px-6 md:px-10 pt-8 md:pt-14 pb-4 md:pb-8">
-          <h1 className="font-display text-h1 text-hap-text tracking-[0.03em]">
-            The Collection
-          </h1>
-          <p className="font-body text-body text-muted mt-2 max-w-[42ch]">
-            Tableware and home pieces, curated for everyday beauty.
-          </p>
+      <main className="pt-nav-mobile md:pt-nav-desktop min-h-screen bg-bg">
+        {/* Page header — sits on surface for contrast */}
+        <div className="bg-surface">
+          <div className="max-w-content mx-auto px-6 md:px-10 py-12">
+            <h1 className="font-display text-h1 text-hap-text tracking-[0.03em]">
+              The Collection
+            </h1>
+            <p className="font-body text-body text-brand mt-2 max-w-[42ch]">
+              Tableware and home pieces, curated for everyday beauty.
+            </p>
+          </div>
         </div>
 
         <CatalogShell products={products} hasError={!!error} />

@@ -37,6 +37,15 @@ export default function CatalogShell({ products, hasError = false }: Props) {
 
   return (
     <>
+      {/* Editorial header: thin rule + right-aligned piece count — stays on surface with the catalog header */}
+      <div className="bg-surface border-t border-border">
+        <div className="max-w-content mx-auto px-6 md:px-10 py-2 flex items-center justify-end">
+          <span className="font-display text-small italic text-muted whitespace-nowrap">
+            {filtered.length} {filtered.length === 1 ? "piece" : "pieces"}
+          </span>
+        </div>
+      </div>
+
       <FilterBar active={activeCategory} onChange={setActiveCategory} />
 
       <div className="max-w-content mx-auto px-6 md:px-10 pb-section-mobile md:pb-section-desktop">
@@ -60,11 +69,8 @@ export default function CatalogShell({ products, hasError = false }: Props) {
           />
         ) : (
           /*
-            Mobile: 2-column grid. First card gets col-span-2 (isLead) so it
-            spans the full row with a 4:3 landscape image — the "editorial
-            magazine" rhythm described in CLAUDE.md.
-            Desktop (md+): clean 4-column grid, all cards portrait 3:4,
-            isLead resets to col-span-1.
+            Mobile: 2-col grid. Lead card (index 0) spans full width (col-span-2)
+            with 4:3 image. Desktop: 4-col grid, lead spans 2 cols, rest are 1 col.
           */
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-6 md:mt-10">
             {filtered.map((product, index) => (

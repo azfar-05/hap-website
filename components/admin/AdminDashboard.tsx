@@ -3,7 +3,18 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import type { Product } from '@/types/database.types'
+import type { Product, Category } from '@/types/database.types'
+
+type CategoryFilter = Category | 'all'
+
+const ADMIN_CATEGORIES: { value: CategoryFilter; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'tableware', label: 'Tableware' },
+  { value: 'kitchenware', label: 'Kitchenware' },
+  { value: 'crockery', label: 'Crockery' },
+  { value: 'cutlery', label: 'Cutlery' },
+  { value: 'home_decor', label: 'Home Decor' },
+]
 import {
   addProduct,
   updateProduct,
@@ -32,6 +43,8 @@ export default function AdminDashboard({
   const [panelState, setPanelState] = useState<PanelState>({ open: false })
   const [deleteState, setDeleteState] = useState<DeleteDialogState>({ open: false })
   const [isDeleting, setIsDeleting] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [activeCategory, setActiveCategory] = useState<CategoryFilter>('all')
 
   function showToast(type: 'success' | 'error', message: string) {
     const id = Math.random().toString(36).slice(2)
@@ -190,15 +203,75 @@ export default function AdminDashboard({
               Add your first product
             </button>
           </div>
-        ) : (
-          <ProductTable
-            products={products}
-            onToggleInStock={(p) => handleToggle(p, 'in_stock')}
-            onToggleFeatured={(p) => handleToggle(p, 'featured')}
-            onEdit={(p) => setPanelState({ open: true, mode: 'edit', product: p })}
-            onDelete={(p) => setDeleteState({ open: true, product: p })}
-          />
-        )}
+        ) : (() => {
+          const outOfStock = products.filter((p) => !p.in_stock).length
+          const featured = products.filter((p) => p.featured).length
+          const filteredProducts = products.filter((p) => {
+            const matchesSearch = p.name
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase().trim())
+            const matchesCategory =
+              activeCategory === 'all' || p.category === activeCategory
+            return matchesSearch && matchesCategory
+          })
+
+          return (
+            <>
+              {/* Stats row */}
+              <p className="font-body text-small text-muted mb-5">
+                {products.length} products · {outOfStock} out of stock · {featured} featured
+              </p>
+
+              {/* Filter bar */}
+              <div className="mb-6 space-y-3">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products…"
+                  className="w-full md:w-72 font-body text-small text-hap-text bg-surface border border-border rounded-input px-4 py-2 outline-none focus:border-brand transition-colors"
+                />
+                <div className="overflow-x-auto no-scrollbar">
+                  <div className="flex gap-2 pb-0.5">
+                    {ADMIN_CATEGORIES.map(({ value, label }) => {
+                      const isActive = activeCategory === value
+                      return (
+                        <button
+                          key={value}
+                          onClick={() => setActiveCategory(value)}
+                          className={[
+                            'flex-none rounded-badge font-body text-small font-medium px-4 py-1.5',
+                            'transition-colors duration-150 whitespace-nowrap',
+                            isActive
+                              ? 'bg-brand text-surface'
+                              : 'bg-surface text-muted border border-border hover:border-brand hover:text-hap-text',
+                          ].join(' ')}
+                        >
+                          {label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Table or no-results */}
+              {filteredProducts.length === 0 ? (
+                <p className="font-body text-body text-muted text-center py-16">
+                  No products match your search.
+                </p>
+              ) : (
+                <ProductTable
+                  products={filteredProducts}
+                  onToggleInStock={(p) => handleToggle(p, 'in_stock')}
+                  onToggleFeatured={(p) => handleToggle(p, 'featured')}
+                  onEdit={(p) => setPanelState({ open: true, mode: 'edit', product: p })}
+                  onDelete={(p) => setDeleteState({ open: true, product: p })}
+                />
+              )}
+            </>
+          )
+        })()}
       </main>
 
       {/* Mobile FAB */}

@@ -29,19 +29,20 @@ export default function ProductCard({ product, isLead = false }: Props) {
     <Link
       href={`/product/${product.id}`}
       className={[
-        "group block bg-surface rounded-card shadow-card-rest",
-        "hover:shadow-card-hover hover:-translate-y-1 transition-all duration-200 overflow-hidden",
+        "group block",
+        "hover:-translate-y-1 transition-transform duration-200",
         !product.in_stock ? "opacity-70" : "",
-        isLead ? "col-span-2 md:col-span-1" : "",
+        isLead ? "col-span-2 md:col-span-2" : "",
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      {/* Image */}
+      {/* Image — the card itself */}
       <div
         className={[
-          "relative overflow-hidden rounded-t-card bg-border",
-          isLead ? "aspect-[4/3] md:aspect-[3/4]" : "aspect-[3/4]",
+          "relative overflow-hidden rounded-image bg-border",
+          "shadow-card-rest group-hover:shadow-card-hover transition-shadow duration-200",
+          isLead ? "aspect-[4/3]" : "aspect-[3/4]",
         ].join(" ")}
       >
         <FadingImage
@@ -50,7 +51,7 @@ export default function ProductCard({ product, isLead = false }: Props) {
           fill
           sizes={
             isLead
-              ? "(min-width: 768px) 25vw, 100vw"
+              ? "(min-width: 768px) 50vw, 100vw"
               : "(min-width: 768px) 25vw, 50vw"
           }
           className="object-cover"
@@ -64,17 +65,22 @@ export default function ProductCard({ product, isLead = false }: Props) {
         )}
       </div>
 
-      {/* Content */}
-      <div className="p-4">
-        <span className="inline-block font-body text-small text-muted font-medium rounded-badge border border-border px-3 py-0.5 mb-3">
-          {label}
-        </span>
-        <h3 className="font-display text-h3 text-hap-text leading-snug mb-2">
+      {/* Text below the image, on page background */}
+      <div className="px-1 pt-2 pb-4">
+        <h3
+          className={[
+            "font-display text-hap-text leading-snug",
+            isLead ? "text-h2" : "text-h3",
+          ].join(" ")}
+        >
           {product.name}
         </h3>
-        <p className="font-body text-price text-brand font-semibold">
+        <p className="font-body text-price text-brand font-semibold mt-1">
           {price}
         </p>
+        <span className="inline-block font-body text-small text-muted font-medium rounded-badge border border-border px-3 py-0.5 mt-1.5">
+          {label}
+        </span>
       </div>
     </Link>
   );

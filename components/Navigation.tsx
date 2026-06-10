@@ -31,7 +31,7 @@ export default function Navigation() {
 
         <Link
           href="/catalog"
-          className="font-body text-small font-medium tracking-[0.12em] uppercase text-muted hover:text-accent transition-colors duration-200"
+          className="font-body text-small tracking-widest uppercase text-muted hover:text-hap-text transition-colors duration-200"
         >
           Catalog
         </Link>

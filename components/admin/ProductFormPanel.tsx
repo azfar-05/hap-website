@@ -180,12 +180,12 @@ export default function ProductFormPanel({ state, onClose, onSubmit }: Props) {
               Price (₹)
             </label>
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               value={form.price}
               onChange={(e) => set('price', e.target.value)}
               placeholder="e.g. 1200"
-              min="1"
-              step="1"
               className={`w-full font-body text-body text-hap-text bg-bg border rounded-input px-4 py-3 outline-none transition-colors ${
                 priceError
                   ? 'border-red-400 bg-red-50/50'

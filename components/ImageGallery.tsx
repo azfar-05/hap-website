@@ -14,7 +14,7 @@ export default function ImageGallery({ images, productName }: Props) {
   return (
     <div>
       {/* Main image */}
-      <div className="relative aspect-square rounded-image overflow-hidden bg-border">
+      <div className="relative aspect-[3/4] rounded-image overflow-hidden bg-border">
         <FadingImage
           key={images[activeIndex]}
           src={images[activeIndex]}
@@ -35,7 +35,7 @@ export default function ImageGallery({ images, productName }: Props) {
               onClick={() => setActiveIndex(i)}
               aria-label={`View image ${i + 1}`}
               className={[
-                "relative w-16 h-16 flex-shrink-0 rounded-btn overflow-hidden border-2 transition-colors duration-150",
+                "relative w-12 h-16 flex-shrink-0 rounded-btn overflow-hidden border-2 transition-colors duration-150",
                 i === activeIndex ? "border-brand" : "border-border hover:border-accent",
               ].join(" ")}
             >
