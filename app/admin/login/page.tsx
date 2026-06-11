@@ -24,9 +24,13 @@ export default function AdminLoginPage() {
     <main className="min-h-screen bg-bg flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
-          <h1 className="font-display text-h1 text-hap-text tracking-wide">HAP</h1>
-          <p className="font-body text-small text-muted mt-1 tracking-widest uppercase">
-            Admin
+          <h1 className="font-display text-h1 text-hap-text tracking-[0.08em]">HAP</h1>
+          <p className="flex items-center justify-center gap-3 mt-3">
+            <span aria-hidden="true" className="h-px w-6 bg-brand/50" />
+            <span className="font-body text-eyebrow font-medium uppercase text-muted">
+              Studio
+            </span>
+            <span aria-hidden="true" className="h-px w-6 bg-brand/50" />
           </p>
         </div>
 
@@ -49,7 +53,7 @@ export default function AdminLoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your@email.com"
-              className="w-full font-body text-body text-hap-text bg-bg border border-border rounded-input px-4 py-3 outline-none focus:border-brand transition-colors placeholder:text-muted/50"
+              className="w-full font-body text-body text-hap-text bg-bg border border-border rounded-input px-4 py-3 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all placeholder:text-muted/50"
             />
           </div>
 
@@ -68,7 +72,7 @@ export default function AdminLoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full font-body text-body text-hap-text bg-bg border border-border rounded-input px-4 py-3 outline-none focus:border-brand transition-colors placeholder:text-muted/50"
+              className="w-full font-body text-body text-hap-text bg-bg border border-border rounded-input px-4 py-3 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all placeholder:text-muted/50"
             />
           </div>
 
@@ -81,7 +85,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={isPending}
-            className="w-full font-body font-semibold text-body text-white bg-brand rounded-btn px-4 py-3.5 hover:bg-accent transition-colors disabled:opacity-60"
+            className="w-full font-body font-semibold text-body text-white bg-brand rounded-btn px-4 py-3.5 hover:bg-accent active:scale-[0.99] transition-all disabled:opacity-60"
           >
             {isPending ? 'Signing in…' : 'Sign In'}
           </button>

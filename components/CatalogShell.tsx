@@ -53,15 +53,6 @@ export default function CatalogShell({ products, hasError = false }: Props) {
 
   return (
     <>
-      {/* Editorial header: right-aligned piece count */}
-      <div className="bg-surface border-t border-border">
-        <div className="max-w-content mx-auto px-6 md:px-10 py-2 flex items-center justify-end">
-          <span className="font-display text-small italic text-muted whitespace-nowrap">
-            {filtered.length} {filtered.length === 1 ? "piece" : "pieces"}
-          </span>
-        </div>
-      </div>
-
       <FilterBar active={activeCategory} onChange={setActiveCategory} />
 
       <div className="max-w-content mx-auto px-6 md:px-10 pb-section-mobile md:pb-section-desktop">
@@ -76,11 +67,19 @@ export default function CatalogShell({ products, hasError = false }: Props) {
             }
           />
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mt-6 md:mt-10">
-            {filtered.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            {/* Quiet editorial piece count */}
+            <p className="flex justify-end mt-5 md:mt-7">
+              <span className="font-display italic text-[0.95rem] text-muted">
+                {filtered.length} {filtered.length === 1 ? "piece" : "pieces"}
+              </span>
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-2 md:gap-x-6 md:gap-y-4 mt-2 md:mt-3">
+              {filtered.map((product, i) => (
+                <ProductCard key={product.id} product={product} priority={i < 4} />
+              ))}
+            </div>
+          </>
         )}
       </div>
     </>

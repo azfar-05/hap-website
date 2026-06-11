@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import type { Product } from '@/types/database.types'
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -82,7 +83,7 @@ export default function ProductTable({
       {/* ── Mobile card list (< md) ── */}
       <div className="md:hidden rounded-card border border-border shadow-card-rest overflow-hidden">
         {/* Column labels */}
-        <div className="flex items-center gap-3 px-4 py-2 bg-surface border-b border-border">
+        <div className="flex items-center gap-3 px-3 py-2 bg-surface border-b border-border">
           <span className="flex-1 font-body text-[10px] font-medium text-muted uppercase tracking-widest">
             Product
           </span>
@@ -102,18 +103,32 @@ export default function ProductTable({
           {products.map((product) => (
             <div
               key={product.id}
-              className="flex items-center gap-3 px-4 bg-surface hover:bg-surface-hover transition-colors min-h-[72px]"
+              className="flex items-center gap-3 px-3 bg-surface hover:bg-surface-hover transition-colors min-h-[72px]"
             >
-              {/* Tapping the name opens edit */}
+              {/* Tapping the thumbnail or name opens edit */}
               <button
                 onClick={() => onEdit(product)}
-                className="flex-1 min-w-0 py-3 text-left"
+                className="flex-1 min-w-0 py-3 text-left flex items-center gap-3"
               >
-                <span className="font-display text-[14px] tracking-wide text-hap-text block truncate leading-snug">
-                  {product.name}
+                <span className="relative w-10 h-10 flex-none rounded-lg overflow-hidden bg-bg ring-1 ring-border">
+                  {product.images[0] && (
+                    <Image
+                      src={product.images[0]}
+                      alt=""
+                      fill
+                      sizes="40px"
+                      className="object-cover"
+                    />
+                  )}
                 </span>
-                <span className="inline-block mt-1 font-body text-[11px] text-muted bg-bg border border-border px-2 py-0.5 rounded-full leading-relaxed">
-                  {CATEGORY_LABELS[product.category] ?? product.category}
+                <span className="min-w-0">
+                  <span className="font-body text-[14px] font-medium text-hap-text block truncate leading-snug">
+                    {product.name}
+                  </span>
+                  <span className="block mt-0.5 font-body text-[12px] text-muted truncate">
+                    {formatPrice(product.price)} ·{' '}
+                    {CATEGORY_LABELS[product.category] ?? product.category}
+                  </span>
                 </span>
               </button>
 
@@ -210,10 +225,23 @@ export default function ProductTable({
                   i % 2 === 0 ? 'bg-bg' : 'bg-surface'
                 }`}
               >
-                <td className="px-4 py-3 max-w-[200px]">
-                  <span className="font-body text-body text-hap-text font-medium truncate block">
-                    {product.name}
-                  </span>
+                <td className="px-4 py-3 max-w-[240px]">
+                  <div className="flex items-center gap-3">
+                    <span className="relative w-10 h-10 flex-none rounded-lg overflow-hidden bg-bg ring-1 ring-border">
+                      {product.images[0] && (
+                        <Image
+                          src={product.images[0]}
+                          alt=""
+                          fill
+                          sizes="40px"
+                          className="object-cover"
+                        />
+                      )}
+                    </span>
+                    <span className="font-body text-body text-hap-text font-medium truncate block">
+                      {product.name}
+                    </span>
+                  </div>
                 </td>
                 <td className="px-4 py-3">
                   <span className="font-body text-small text-muted">

@@ -131,7 +131,7 @@ export default function ProductFormPanel({ state, onClose, onSubmit }: Props) {
         }`}
       >
         {/* Sticky header */}
-        <div className="sticky top-0 z-10 bg-surface border-b border-border px-6 py-4 flex items-center justify-between">
+        <div className="sticky top-0 z-10 bg-surface/95 backdrop-blur-sm border-b border-border px-6 py-4 flex items-center justify-between">
           <h2 className="font-display text-h3 text-hap-text">{title}</h2>
           <button
             type="button"
@@ -284,7 +284,7 @@ export default function ProductFormPanel({ state, onClose, onSubmit }: Props) {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 font-body font-semibold text-body text-white bg-brand rounded-btn px-4 py-3 hover:bg-accent transition-colors disabled:opacity-60"
+              className="flex-1 font-body font-semibold text-body text-white bg-brand rounded-btn px-4 py-3 hover:bg-accent active:scale-[0.99] transition-all disabled:opacity-60"
             >
               {isSubmitting ? 'Saving…' : submitLabel}
             </button>

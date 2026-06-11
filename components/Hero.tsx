@@ -11,36 +11,55 @@ export default function Hero({ heroImages }: Props) {
   const collageItems = [...heroImages].sort((a, b) => a.slot - b.slot).slice(0, 3);
 
   return (
-    <section className="min-h-screen md:h-hero-desktop bg-bg flex flex-col md:flex-row overflow-hidden">
+    <section className="relative min-h-[100svh] md:min-h-0 md:h-hero-desktop bg-bg flex flex-col md:flex-row overflow-hidden">
+      {/* Warm ambient glow behind the collage — gives the cream depth */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-24 -right-24 w-[22rem] h-[22rem] md:w-[34rem] md:h-[34rem] rounded-full bg-accent/15 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none hidden md:block absolute -bottom-32 left-1/3 w-[26rem] h-[26rem] rounded-full bg-brand/10 blur-3xl"
+      />
+
       {/* ─── Text column ─── */}
-      <div className="flex-1 flex flex-col justify-center pt-nav-mobile md:pt-0 px-6 md:pl-20 lg:pl-28 pb-10 md:pb-0 md:w-[55%] md:flex-none">
-        <p className="font-body text-xs tracking-widest uppercase text-brand mb-5">
-          homes and plates
+      <div className="relative flex-1 flex flex-col justify-center pt-[calc(64px+2rem)] md:pt-0 px-6 md:pl-20 lg:pl-28 pb-12 md:pb-0 md:w-[55%] md:flex-none">
+        <p className="flex items-center gap-3 mb-6 md:mb-7">
+          <span aria-hidden="true" className="h-px w-10 bg-brand/60" />
+          <span className="font-body text-eyebrow font-medium uppercase text-brand">
+            Homes &amp; Plates
+          </span>
         </p>
 
-        <h1 className="font-display text-5xl sm:text-6xl md:text-display text-hap-text leading-[1.1] tracking-tight md:tracking-[0.02em] mb-6">
+        <h1 className="font-display text-[clamp(3rem,11.5vw,3.9rem)] md:text-display text-hap-text leading-[1.05] tracking-[0.01em] mb-7">
           Beautiful things
           <br />
-          for everyday living.
+          for <em className="italic text-brand">everyday</em> living.
         </h1>
 
-        <p className="font-body text-body text-muted max-w-[34ch] mb-10 leading-relaxed">
+        <p className="font-body text-body font-light text-muted max-w-[36ch] mb-10 md:mb-12 leading-relaxed">
           Curated tableware and home pieces — chosen for the way they feel in
           use. Warm, unhurried, and worth coming home to.
         </p>
 
         <Link
           href="/catalog"
-          className="self-start inline-flex items-center justify-center bg-brand text-surface font-body text-small font-semibold tracking-[0.12em] uppercase py-4 px-8 rounded-btn hover:bg-accent transition-colors duration-200"
+          className="group self-start inline-flex items-center gap-2.5 bg-brand text-surface font-body text-small font-semibold tracking-[0.14em] uppercase py-4 px-8 rounded-btn shadow-btn hover:bg-accent active:scale-[0.98] transition-all duration-200"
         >
-          Explore the Catalog
+          Explore the catalog
+          <span
+            aria-hidden="true"
+            className="transition-transform duration-200 group-hover:translate-x-1"
+          >
+            →
+          </span>
         </Link>
       </div>
 
       {/* ─── Image column ─── */}
       <div className="flex-none md:flex-1 relative md:overflow-hidden">
         {/* Mobile: asymmetric stacked collage */}
-        <div className="md:hidden pb-10">
+        <div className="md:hidden pb-14">
           {collageItems.length > 0 ? (
             <MobileCollage items={collageItems} />
           ) : (
@@ -61,24 +80,30 @@ export default function Hero({ heroImages }: Props) {
   );
 }
 
+/* Shared "mounted print" frame — a thick surface border reads like a matted
+   photograph and is the cheapest, most reliable premium signal we have. */
+const printFrame =
+  "border-[6px] border-surface rounded-2xl overflow-hidden bg-surface";
+
 // ─── Mobile: stacked overlapping collage ─────────────────────────────────────
 
 function MobileCollage({ items }: { items: HeroSlot[] }) {
   return (
-    <div className="relative overflow-visible mx-4 mt-8">
+    <div className="relative overflow-visible mx-5 mt-6">
       {items[0] && (
-        <div className="relative w-full aspect-[4/3] rotate-1 rounded-2xl overflow-hidden shadow-card-hover">
+        <div className={`relative w-full aspect-[4/3] rotate-1 shadow-print ${printFrame}`}>
           <FadingImage
             src={items[0].image_url}
             alt={`Hero image ${items[0].slot}`}
             fill
             sizes="90vw"
             className="object-cover"
+            priority
           />
         </div>
       )}
       {items[1] && (
-        <div className="relative w-3/4 ml-auto aspect-[3/4] -rotate-2 -mt-8 rounded-2xl overflow-hidden shadow-card-rest">
+        <div className={`relative w-[72%] ml-auto aspect-[3/4] -rotate-2 -mt-10 shadow-card-hover ${printFrame}`}>
           <FadingImage
             src={items[1].image_url}
             alt={`Hero image ${items[1].slot}`}
@@ -89,7 +114,7 @@ function MobileCollage({ items }: { items: HeroSlot[] }) {
         </div>
       )}
       {items[2] && (
-        <div className="relative w-2/3 aspect-[4/3] rotate-1 -mt-6 rounded-2xl overflow-hidden shadow-card-rest">
+        <div className={`relative w-[62%] aspect-[4/3] rotate-2 -mt-8 shadow-card-hover ${printFrame}`}>
           <FadingImage
             src={items[2].image_url}
             alt={`Hero image ${items[2].slot}`}
@@ -105,10 +130,10 @@ function MobileCollage({ items }: { items: HeroSlot[] }) {
 
 function MobileCollagePlaceholder() {
   return (
-    <div className="relative overflow-visible mx-4 mt-8">
-      <div className="relative w-full aspect-[4/3] rotate-1 rounded-2xl overflow-hidden shadow-card-hover bg-gradient-to-br from-[#E8D5C4] to-[#C4967A]" />
-      <div className="relative w-3/4 ml-auto aspect-[3/4] -rotate-2 -mt-8 rounded-2xl overflow-hidden shadow-card-rest bg-gradient-to-br from-[#E8D5C4] to-[#C4967A]" />
-      <div className="relative w-2/3 aspect-[4/3] rotate-1 -mt-6 rounded-2xl overflow-hidden shadow-card-rest bg-gradient-to-br from-[#E8D5C4] to-[#C4967A]" />
+    <div className="relative overflow-visible mx-5 mt-6">
+      <div className={`relative w-full aspect-[4/3] rotate-1 shadow-print bg-gradient-to-br from-[#E8D5C4] to-[#C4967A] ${printFrame}`} />
+      <div className={`relative w-[72%] ml-auto aspect-[3/4] -rotate-2 -mt-10 shadow-card-hover bg-gradient-to-br from-[#E8D5C4] to-[#C4967A] ${printFrame}`} />
+      <div className={`relative w-[62%] aspect-[4/3] rotate-2 -mt-8 shadow-card-hover bg-gradient-to-br from-[#E8D5C4] to-[#C4967A] ${printFrame}`} />
     </div>
   );
 }
@@ -118,22 +143,23 @@ function MobileCollagePlaceholder() {
 function Collage({ items }: { items: HeroSlot[] }) {
   return (
     <div className="relative w-full h-full">
-      {/* Primary — largest, left-center */}
+      {/* Primary — largest, left-center, slight counter tilt */}
       {items[0] && (
-        <div className="absolute top-[8%] left-[5%] w-[56%] aspect-[3/4] rounded-image overflow-hidden shadow-card-hover z-20">
+        <div className={`absolute top-[8%] left-[5%] w-[56%] aspect-[3/4] -rotate-1 shadow-print z-20 ${printFrame}`}>
           <FadingImage
             src={items[0].image_url}
             alt={`Hero image ${items[0].slot}`}
             fill
             sizes="(min-width: 768px) 25vw, 56vw"
             className="object-cover"
+            priority
           />
         </div>
       )}
 
       {/* Secondary — bottom-right, slight clockwise tilt */}
       {items[1] && (
-        <div className="absolute bottom-[4%] right-[2%] w-[47%] aspect-[3/4] rounded-image overflow-hidden shadow-card-rest rotate-2 z-10">
+        <div className={`absolute bottom-[4%] right-[2%] w-[47%] aspect-[3/4] rotate-2 shadow-card-hover z-10 ${printFrame}`}>
           <FadingImage
             src={items[1].image_url}
             alt={`Hero image ${items[1].slot}`}
@@ -144,9 +170,9 @@ function Collage({ items }: { items: HeroSlot[] }) {
         </div>
       )}
 
-      {/* Accent — top-right, slight counter-clockwise tilt, in front */}
+      {/* Accent — top-right, counter tilt, in front */}
       {items[2] && (
-        <div className="absolute top-[2%] right-[4%] w-[39%] aspect-[3/4] rounded-image overflow-hidden shadow-card-rest -rotate-2 z-30">
+        <div className={`absolute top-[2%] right-[4%] w-[39%] aspect-[3/4] -rotate-3 shadow-print z-30 ${printFrame}`}>
           <FadingImage
             src={items[2].image_url}
             alt={`Hero image ${items[2].slot}`}
@@ -165,9 +191,9 @@ function Collage({ items }: { items: HeroSlot[] }) {
 function CollagePlaceholder() {
   return (
     <div className="relative w-full h-full">
-      <div className="absolute top-[8%] left-[5%] w-[56%] aspect-[3/4] rounded-image bg-border z-20" />
-      <div className="absolute bottom-[4%] right-[2%] w-[47%] aspect-[3/4] rounded-image bg-border rotate-2 z-10" />
-      <div className="absolute top-[2%] right-[4%] w-[39%] aspect-[3/4] rounded-image bg-border -rotate-2 z-30" />
+      <div className={`absolute top-[8%] left-[5%] w-[56%] aspect-[3/4] -rotate-1 bg-border z-20 ${printFrame}`} />
+      <div className={`absolute bottom-[4%] right-[2%] w-[47%] aspect-[3/4] rotate-2 bg-border z-10 ${printFrame}`} />
+      <div className={`absolute top-[2%] right-[4%] w-[39%] aspect-[3/4] -rotate-3 bg-border z-30 ${printFrame}`} />
     </div>
   );
 }

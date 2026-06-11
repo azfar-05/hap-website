@@ -20,11 +20,17 @@
     font-family: var(--font-dm-sans), system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
     background-color: var(--color-bg);
     min-height: 100dvh;
+  }
+
+  /* Warm, on-brand text selection */
+  ::selection {
+    background-color: rgba(196, 150, 122, 0.35);
   }
 
   /* Hide scrollbar on filter bar and similar horizontal-scroll containers */
@@ -41,9 +47,23 @@
   /* Image fade-in on load */
   .img-fade {
     opacity: 0;
-    transition: opacity 300ms ease;
+    transition: opacity 500ms ease;
   }
   .img-fade.loaded {
     opacity: 1;
+  }
+
+  /* Animated underline for quiet text links — grows left to right on hover */
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 300ms ease;
+    padding-bottom: 2px;
+  }
+  .link-underline:hover,
+  .link-underline:focus-visible {
+    background-size: 100% 1px;
   }
 }

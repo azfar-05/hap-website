@@ -23,6 +23,22 @@ export async function loginAction(
   redirect('/admin')
 }
 
+/**
+ * Server actions are publicly reachable HTTP endpoints. Every mutation below
+ * uses the service-role key, so each one must verify the caller's session
+ * belongs to the admin before touching the database or storage.
+ */
+async function requireAdmin(): Promise<{ error: string } | null> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user || user.email !== process.env.ADMIN_EMAIL) {
+    return { error: 'Not authorized.' }
+  }
+  return null
+}
+
 // ── Mutations (service-role — bypasses RLS safely, server-only) ───────────────
 
 type MutationResult = { error: string } | { data: Product }
@@ -44,6 +60,9 @@ export async function addProduct(
   formData: ProductFormData,
   imageUrls: string[]
 ): Promise<MutationResult> {
+  const denied = await requireAdmin()
+  if (denied) return denied
+
   const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('products')
@@ -59,6 +78,9 @@ export async function updateProduct(
   formData: ProductFormData,
   imageUrls: string[]
 ): Promise<MutationResult> {
+  const denied = await requireAdmin()
+  if (denied) return denied
+
   const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('products')
@@ -71,6 +93,9 @@ export async function updateProduct(
 }
 
 export async function deleteProduct(id: string): Promise<{ error: string } | { ok: true }> {
+  const denied = await requireAdmin()
+  if (denied) return denied
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('products').delete().eq('id', id)
   if (error) return { error: error.message }
@@ -82,6 +107,9 @@ export async function toggleProduct(
   field: 'in_stock' | 'featured',
   value: boolean
 ): Promise<{ error: string } | { ok: true }> {
+  const denied = await requireAdmin()
+  if (denied) return denied
+
   const supabase = createAdminClient()
   const patch =
     field === 'in_stock'
@@ -92,12 +120,73 @@ export async function toggleProduct(
   return { ok: true }
 }
 
+// ── Storage (all uploads/deletes happen server-side, service-role) ────────────
+
+async function uploadToStorage(
+  file: File,
+  folder: 'products' | 'hero'
+): Promise<{ error: string } | { publicUrl: string }> {
+  const supabase = createAdminClient()
+  const ext = file.name.split('.').pop() ?? 'jpg'
+  const path = `${folder}/${crypto.randomUUID()}.${ext}`
+
+  const { error: uploadError } = await supabase.storage
+    .from('product-images')
+    .upload(path, file, { cacheControl: '3600' })
+
+  if (uploadError) return { error: uploadError.message }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('product-images').getPublicUrl(path)
+
+  return { publicUrl }
+}
+
+export async function uploadProductImage(
+  formData: FormData
+): Promise<{ error: string } | { publicUrl: string }> {
+  const denied = await requireAdmin()
+  if (denied) return denied
+
+  const file = formData.get('file')
+  if (!(file instanceof File)) return { error: 'No file provided' }
+  return uploadToStorage(file, 'products')
+}
+
+export async function uploadHeroImage(
+  formData: FormData
+): Promise<{ error: string } | { publicUrl: string }> {
+  const denied = await requireAdmin()
+  if (denied) return denied
+
+  const file = formData.get('file')
+  if (!(file instanceof File)) return { error: 'No file provided' }
+  return uploadToStorage(file, 'hero')
+}
+
+export async function deleteStorageImages(
+  paths: string[]
+): Promise<{ error: string } | { ok: true }> {
+  const denied = await requireAdmin()
+  if (denied) return denied
+
+  if (paths.length === 0) return { ok: true }
+  const supabase = createAdminClient()
+  const { error } = await supabase.storage.from('product-images').remove(paths)
+  if (error) return { error: error.message }
+  return { ok: true }
+}
+
 // ── Hero collage ──────────────────────────────────────────────────────────────
 
 export async function upsertHeroSlot(
   slot: number,
   imageUrl: string
 ): Promise<{ error: string } | { ok: true }> {
+  const denied = await requireAdmin()
+  if (denied) return denied
+
   const supabase = createAdminClient()
   const { error } = await supabase
     .from('hero_images')
@@ -107,41 +196,11 @@ export async function upsertHeroSlot(
 }
 
 export async function removeHeroSlot(slot: number): Promise<{ error: string } | { ok: true }> {
+  const denied = await requireAdmin()
+  if (denied) return denied
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('hero_images').delete().eq('slot', slot)
-  if (error) return { error: error.message }
-  return { ok: true }
-}
-
-export async function uploadHeroImage(
-  formData: FormData
-): Promise<{ error: string } | { publicUrl: string }> {
-  const supabase = createAdminClient()
-  const file = formData.get('file') as File
-  if (!file) return { error: 'No file provided' }
-
-  const ext = file.name.split('.').pop() ?? 'jpg'
-  const uid = crypto.randomUUID()
-  const path = `hero/${uid}.${ext}`
-
-  const { error: uploadError } = await supabase.storage
-    .from('product-images')
-    .upload(path, file, { cacheControl: '3600' })
-
-  if (uploadError) return { error: uploadError.message }
-
-  const { data: { publicUrl } } = supabase.storage
-    .from('product-images')
-    .getPublicUrl(path)
-
-  return { publicUrl }
-}
-
-export async function deleteHeroImage(
-  path: string
-): Promise<{ error: string } | { ok: true }> {
-  const supabase = createAdminClient()
-  const { error } = await supabase.storage.from('product-images').remove([path])
   if (error) return { error: error.message }
   return { ok: true }
 }

@@ -24,14 +24,14 @@ export default function Navigation() {
       <div className="w-full max-w-content mx-auto px-6 md:px-10 flex items-center justify-between">
         <Link
           href="/"
-          className="font-display text-2xl md:text-3xl font-normal tracking-[0.06em] text-hap-text leading-none"
+          className="font-display text-2xl md:text-3xl font-normal tracking-[0.08em] text-hap-text leading-none hover:opacity-70 transition-opacity duration-200"
         >
           HAP
         </Link>
 
         <Link
           href="/catalog"
-          className="font-body text-small tracking-widest uppercase text-muted hover:text-hap-text transition-colors duration-200"
+          className="link-underline font-body text-[13px] font-medium tracking-[0.18em] uppercase text-muted hover:text-hap-text transition-colors duration-200"
         >
           Catalog
         </Link>

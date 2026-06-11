@@ -26,12 +26,18 @@ export default async function CatalogPage() {
 
       <main className="pt-nav-mobile md:pt-nav-desktop min-h-screen bg-bg">
         {/* Page header — sits on surface for contrast */}
-        <div className="bg-surface">
-          <div className="max-w-content mx-auto px-6 md:px-10 py-12">
-            <h1 className="font-display text-h1 text-hap-text tracking-[0.03em]">
+        <div className="bg-surface border-b border-border/60">
+          <div className="max-w-content mx-auto px-6 md:px-10 pt-10 pb-10 md:pt-16 md:pb-14">
+            <p className="flex items-center gap-3 mb-4">
+              <span aria-hidden="true" className="h-px w-8 bg-brand/60" />
+              <span className="font-body text-eyebrow font-medium uppercase text-brand">
+                Catalog
+              </span>
+            </p>
+            <h1 className="font-display text-h1 text-hap-text tracking-[0.02em]">
               The Collection
             </h1>
-            <p className="font-body text-body text-brand mt-2 max-w-[42ch]">
+            <p className="font-body text-body font-light text-muted mt-3 max-w-[42ch] leading-relaxed">
               Tableware and home pieces, curated for everyday beauty.
             </p>
           </div>

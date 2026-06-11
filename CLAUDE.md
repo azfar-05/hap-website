@@ -66,18 +66,27 @@ Use these exact values consistently. Do not substitute or approximate.
 
 **Type Scale:**
 ```
-display:   clamp(2.5rem, 7vw, 4.5rem)  — Cormorant, hero headline
+display:   clamp(3rem, 7.5vw, 5.25rem) / 1.05 — Cormorant, hero headline
 h1:        clamp(2rem, 5vw, 3rem)       — Cormorant, page titles
-h2:        clamp(1.5rem, 3.5vw, 2rem)  — Cormorant, section headings
+h2:        clamp(1.5rem, 3.5vw, 2.125rem) — Cormorant, section headings
 h3:        1.25rem                      — Cormorant, product names on cards
 body:      1rem / 1.6 line-height       — DM Sans
 small:     0.875rem                     — DM Sans, captions, metadata
 price:     1.125rem, DM Sans 600        — always in --color-brand
+eyebrow:   0.6875rem, +0.28em tracking  — DM Sans 500, uppercase section labels
 ```
+
+**Editorial signatures (use consistently):**
+- Cormorant italic is loaded (`style: ["normal", "italic"]`) and is a core brand
+  move: italic accent words in display headlines, italic piece counts, the
+  footer statement line
+- Eyebrow pattern: a short hairline rule (h-px, brand at 50–60% opacity) +
+  tracked-out uppercase label in `text-eyebrow` — used above section headings
+  site-wide (hero, catalog header, Our Picks, related products, admin sections)
 
 ### Spacing & Layout
 - Base unit: 4px. All spacing in multiples of 4.
-- Section padding: 80px top/bottom on desktop, 48px on mobile
+- Section padding: 104px top/bottom on desktop, 64px on mobile
 - Content max-width: 1200px, centered
 - Card grid: 2 columns on mobile, 3 on tablet, 4 on desktop
 - Generous whitespace — this is not a dense marketplace, it's a curated catalog
@@ -95,8 +104,11 @@ images:   12px (top corners on cards), 16px on standalone
 Avoid harsh box-shadows. Use soft, warm-tinted shadows only.
 ```
 card-rest:  0 2px 8px rgba(44, 31, 31, 0.06)
-card-hover: 0 8px 24px rgba(44, 31, 31, 0.12)
+card-hover: 0 12px 32px rgba(44, 31, 31, 0.12)
 modal:      0 24px 64px rgba(44, 31, 31, 0.16)
+btn:        0 8px 24px rgba(160, 112, 112, 0.28)   — primary CTAs (brand-tinted)
+pill:       0 2px 10px rgba(160, 112, 112, 0.30)   — active filter pill
+print:      0 16px 40px rgba(44, 31, 31, 0.14)     — hero collage prints
 ```
 
 ### Signature Design Element
@@ -111,9 +123,17 @@ Admin upload guidance: "For best results, shoot on a white or warm neutral
 background. Your full image will always be shown — nothing is ever cropped."
 
 ### Motion & Animation
-Restraint is the rule. Only two animation moments:
-1. **Product card hover:** subtle lift — translateY(-4px) + card-hover shadow, 200ms ease
-2. **Page-level image load:** fade in from opacity 0 over 300ms once loaded
+Restraint is the rule. Motion exists only as *response to touch* and *image load* —
+never as decoration. The allowed vocabulary:
+1. **Product card hover:** the image tile (not the text block) lifts — translateY(-4px)
+   + card-hover shadow, 300ms ease-out — while the product photo zooms to 1.04 over
+   500ms. Text stays settled.
+2. **Image load:** fade in from opacity 0 over 500ms once loaded
+3. **Press feedback (mobile-first tactility):** interactive elements scale down on
+   :active — 0.95 for pills/thumbnails, ~0.98 for cards and primary buttons, 200ms
+4. **Quiet text links:** animated underline that grows left-to-right on hover
+   (`.link-underline` in globals.css)
+5. **Primary CTA arrows:** translate-x by 4px on hover
 No scroll-triggered animations, no parallax, no entrance animations on text. These
 read as AI-generated and slow the experience on mobile.
 
@@ -122,26 +142,34 @@ read as AI-generated and slow the experience on mobile.
 ## Component Behaviour
 
 ### ProductCard
-- Shows: image (lazy loaded via Next.js Image), product name (Cormorant h3),
-  price (DM Sans, --color-brand), category badge (pill), in-stock indicator
-- Image container: 1:1 square, object-fit: contain, --color-surface background
+- Editorial text hierarchy below the image tile, in this order:
+  category eyebrow (10px tracked uppercase, muted) → product name (Cormorant h3)
+  → price (DM Sans 600, --color-brand, ₹ slightly smaller via `Price` component)
+- No bordered category pill on cards — the eyebrow IS the category label
+- Image tile: 1:1 square, object-fit: contain, --color-surface background,
+  hairline ring (border at 70% opacity) + card-rest shadow
+- Hover: the tile lifts and the photo zooms (see Motion); :active presses the card
 - Optional fields (color, size, material) are NOT shown on the card — only on
   the product detail page
-- If `in_stock` is false: show a subtle "Currently Unavailable" overlay on the
-  image, mute the card slightly (opacity 0.7)
+- If `in_stock` is false: subtle cream overlay with a small "Currently Unavailable"
+  ring-pill anchored at the bottom of the tile, card muted to opacity 0.7
 - If `featured` is true: no special badge on the card — featured drives the
   homepage "Our Picks" section and the catalog "Featured" filter pill only
 
 ### ProductDetail (/product/[id])
 - Full-width image (or image carousel if multiple images)
 - Image display: object-fit: contain, --color-surface background — never crop
-- Name in display font, price prominent
-- Description (if present), then attribute pills for color/size/material
-  (only render pills that have values — never render empty ones)
+- Category as eyebrow label above the name; name in display font; price prominent
+  with a short hairline rule beneath it before the description
+- Description (if present), then a quiet spec list for color/size/material:
+  hairline-divided rows with tracked-uppercase terms ("COLOUR — Sage") — only
+  render rows that have values, never empty ones
 - WhatsApp CTA button: "Ask about this piece" — deep link to WhatsApp with
   pre-filled message: "Hi! I'm interested in [product name]." — number from
   env variable NEXT_PUBLIC_WHATSAPP_NUMBER
 - On tap, button briefly shows "Opening WhatsApp…" for 1.5s before navigating
+- Reassurance caption under the CTA: "Opens WhatsApp with your message ready to
+  send" — light, muted, centered
 - "← Keep browsing" link back to catalog — not a button
 
 ### FilterBar (/catalog)
@@ -150,25 +178,36 @@ read as AI-generated and slow the experience on mobile.
 - Pill order: "Everything" → "Featured" → tableware → kitchenware → crockery →
   cutlery → home_decor
 - "Featured" pill filters grid to only featured = true products
-- Active pill: --color-brand background, white text
-- Inactive pill: --color-surface background, --color-muted text, --color-border border
-- Smooth horizontal scroll, hide scrollbar visually (overflow-x: auto,
-  scrollbar-width: none)
+- Active pill: --color-brand background, white text, soft brand-tinted shadow
+- Inactive pill: --color-surface background, --color-muted text, hairline ring
+  (ring, not border — keeps pill size stable across states)
+- Pills scale to 0.95 on press; bar is sticky under the nav with backdrop-blur
+- Smooth horizontal scroll, hide scrollbar visually, with a right-edge gradient
+  fade on mobile hinting that the row scrolls
+- Piece count ("12 pieces") renders as an italic Cormorant line right-aligned
+  above the grid — not in a separate bordered band
 
 ### Hero (/)
-- Full-viewport-height on mobile, 85vh on desktop
-- Background: --color-bg
-- Left-aligned editorial layout: small eyebrow text ("homes and plates"), large
-  display headline, short tagline, CTA button linking to /catalog
+- Full-viewport-height on mobile (100svh), 85vh on desktop
+- Background: --color-bg with two soft blurred radial glows (accent/15, brand/10)
+  for warmth and depth — decorative only, pointer-events-none
+- Left-aligned editorial layout: eyebrow (hairline rule + "Homes & Plates"),
+  large display headline with ONE italic brand-colored accent word ("everyday"),
+  short tagline in DM Sans 300, CTA button linking to /catalog with sliding arrow
 - Right side (desktop) or bottom (mobile): a collage of exactly 3 hand-picked
   images from the `hero_images` table (slots 1, 2, 3) — NOT tied to featured products
-- If hero_images slots are empty, collage area renders nothing gracefully
+- Collage images are framed as "mounted prints": thick --color-surface border
+  (6px), rounded, slight alternating rotations, warm print shadow
+- If hero_images slots are empty, collage area renders placeholder shapes gracefully
 
 ### "Our Picks" Section (/)
 - Appears below the hero, above the footer
-- Heading: "Our Picks" in Cormorant Garamond h2, left-aligned
+- Header: eyebrow ("From the collection") + "Our Picks" in Cormorant h2,
+  left-aligned; "Browse everything →" link sits at the header's right on desktop,
+  below the strip on mobile
 - Shows products where featured = true, ordered by featured_at DESC, max 8
-- Mobile: horizontally scrollable strip of product cards
+- Mobile: horizontally scrollable strip with scroll-snap (snap-start cards) and
+  a right-edge gradient fade
 - Desktop: 4-column grid
 - If no featured products exist, render nothing — no heading, no empty state
 
@@ -180,8 +219,10 @@ read as AI-generated and slow the experience on mobile.
 - Height: 64px mobile, 72px desktop
 
 ### Footer
-- Simple, minimal. Brand name, tagline, Instagram link, WhatsApp link
-- One warm brand line: "Made with care, for your everyday"
+- The warm brand line "Made with care, for your everyday" leads the footer as a
+  large Cormorant italic statement — it is the footer's hero moment
+- Below it: brand wordmark + "Homes & Plates" eyebrow, then Instagram / WhatsApp /
+  Contact links with animated underlines
 - Background: --color-text (deep warm near-black), text in --color-bg
 - No sitemap, no newsletter — V1 only
 

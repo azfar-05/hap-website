@@ -9,7 +9,9 @@ export default async function AdminPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect('/admin/login')
+  // Only the configured admin may see the dashboard (mutations are also
+  // admin-gated server-side in actions.ts)
+  if (!user || user.email !== process.env.ADMIN_EMAIL) redirect('/admin/login')
 
   const [{ data: products }, { data: heroData }] = await Promise.all([
     supabase.from('products').select('*').order('created_at', { ascending: false }),

@@ -2,7 +2,13 @@
 
 import { useRef, useState } from 'react'
 import Image from 'next/image'
-import { upsertHeroSlot, removeHeroSlot, uploadHeroImage, deleteHeroImage } from '@/app/admin/actions'
+import {
+  upsertHeroSlot,
+  removeHeroSlot,
+  uploadHeroImage,
+  deleteStorageImages,
+} from '@/app/admin/actions'
+import { storagePathFromUrl } from '@/lib/storage'
 import type { HeroSlot } from '@/types/database.types'
 
 interface Props {
@@ -38,12 +44,8 @@ export default function HeroCollageManager({ initialSlots, onToast }: Props) {
     // Best-effort cleanup of old file via server action
     const existing = getSlot(slot)
     if (existing) {
-      const marker = '/product-images/'
-      const idx = existing.image_url.indexOf(marker)
-      if (idx >= 0) {
-        const oldPath = existing.image_url.slice(idx + marker.length)
-        await deleteHeroImage(oldPath)
-      }
+      const oldPath = storagePathFromUrl(existing.image_url)
+      if (oldPath) await deleteStorageImages([oldPath])
     }
 
     // Upload new file via server action
@@ -83,12 +85,8 @@ export default function HeroCollageManager({ initialSlots, onToast }: Props) {
     if (!existing) return
 
     // Best-effort storage cleanup via server action
-    const marker = '/product-images/'
-    const idx = existing.image_url.indexOf(marker)
-    if (idx >= 0) {
-      const oldPath = existing.image_url.slice(idx + marker.length)
-      await deleteHeroImage(oldPath)
-    }
+    const oldPath = storagePathFromUrl(existing.image_url)
+    if (oldPath) await deleteStorageImages([oldPath])
 
     const result = await removeHeroSlot(slot)
     if ('error' in result) {
@@ -102,8 +100,14 @@ export default function HeroCollageManager({ initialSlots, onToast }: Props) {
 
   return (
     <div>
+      <p className="flex items-center gap-3 mb-2">
+        <span aria-hidden="true" className="h-px w-6 bg-brand/50" />
+        <span className="font-body text-eyebrow font-medium uppercase text-brand">
+          Homepage
+        </span>
+      </p>
       <h3 className="font-display text-h3 text-hap-text mb-1">Hero Collage</h3>
-      <p className="font-body text-sm text-muted mb-6">
+      <p className="font-body text-sm text-muted mb-6 max-w-[52ch]">
         These 3 images are shown in the homepage collage. Choose your strongest lifestyle or
         product shots.
       </p>

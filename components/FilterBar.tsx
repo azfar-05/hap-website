@@ -5,7 +5,7 @@ import type { Category } from "@/types/database.types";
 export type FilterValue = "all" | "featured" | Category;
 
 const FILTERS: { value: FilterValue; label: string }[] = [
-  { value: "all", label: "All" },
+  { value: "all", label: "Everything" },
   { value: "featured", label: "Featured" },
   { value: "tableware", label: "Tableware" },
   { value: "kitchenware", label: "Kitchenware" },
@@ -21,34 +21,41 @@ interface Props {
 
 export default function FilterBar({ active, onChange }: Props) {
   return (
-    /* Outer div owns the scroll; inner div is content-width centered so
-       pills align with the page grid on wide screens. */
-    <div className="sticky top-[64px] md:top-[72px] z-40 bg-bg overflow-x-auto no-scrollbar border-b border-border">
-      <div
-        role="tablist"
-        aria-label="Filter by category"
-        className="max-w-content mx-auto flex gap-2 px-6 md:px-10 py-4"
-      >
-        {FILTERS.map(({ value, label }) => {
-          const isActive = active === value;
-          return (
-            <button
-              key={value}
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => onChange(value)}
-              className={[
-                "flex-none rounded-badge font-body text-small font-medium px-5 py-2",
-                "transition-colors duration-200 cursor-pointer whitespace-nowrap",
-                isActive
-                  ? "bg-brand text-surface"
-                  : "bg-surface text-muted border border-border hover:border-brand hover:text-hap-text",
-              ].join(" ")}
-            >
-              {label}
-            </button>
-          );
-        })}
+    <div className="sticky top-[64px] md:top-[72px] z-40 bg-bg/95 backdrop-blur-sm border-b border-border/70">
+      <div className="relative max-w-content mx-auto">
+        <div
+          role="tablist"
+          aria-label="Filter by category"
+          className="flex gap-2 px-6 md:px-10 py-3.5 overflow-x-auto no-scrollbar"
+        >
+          {FILTERS.map(({ value, label }) => {
+            const isActive = active === value;
+            return (
+              <button
+                key={value}
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => onChange(value)}
+                className={[
+                  "flex-none rounded-badge font-body text-[13px] font-medium px-[18px] py-2",
+                  "transition-all duration-200 cursor-pointer whitespace-nowrap",
+                  "active:scale-95",
+                  isActive
+                    ? "bg-brand text-surface shadow-pill"
+                    : "bg-surface text-muted ring-1 ring-border hover:ring-brand/40 hover:text-hap-text",
+                ].join(" ")}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Right-edge fade hints that the pill row scrolls (mobile only) */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-bg to-transparent md:hidden"
+        />
       </div>
     </div>
   );

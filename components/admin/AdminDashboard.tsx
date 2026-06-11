@@ -21,7 +21,10 @@ import {
   updateProduct,
   deleteProduct,
   toggleProduct,
+  uploadProductImage,
+  deleteStorageImages,
 } from '@/app/admin/actions'
+import { storagePathFromUrl } from '@/lib/storage'
 import ProductTable from './ProductTable'
 import ProductFormPanel, { type PanelState, type ProductFormData } from './ProductFormPanel'
 import DeleteDialog, { type DeleteDialogState } from './DeleteDialog'
@@ -38,8 +41,8 @@ export default function AdminDashboard({
   initialHeroSlots: HeroSlot[]
 }) {
   const router = useRouter()
-  // Browser client kept only for auth.signOut() and storage uploads.
-  // All DB mutations go through server actions (service-role key, server-only).
+  // Browser client kept only for auth.signOut(). All DB mutations and storage
+  // writes go through server actions (service-role key, server-only).
   const supabase = useRef(createClient()).current
 
   const [products, setProducts] = useState<Product[]>(initialProducts)
@@ -77,17 +80,11 @@ export default function AdminDashboard({
   }
 
   async function uploadImage(file: File): Promise<string> {
-    const ext = file.name.split('.').pop() ?? 'jpg'
-    const uid =
-      typeof crypto.randomUUID === 'function'
-        ? crypto.randomUUID()
-        : `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-    const path = `products/${uid}.${ext}`
-    const { error } = await supabase.storage
-      .from('product-images')
-      .upload(path, file, { cacheControl: '3600' })
-    if (error) throw error
-    return supabase.storage.from('product-images').getPublicUrl(path).data.publicUrl
+    const fd = new FormData()
+    fd.append('file', file)
+    const result = await uploadProductImage(fd)
+    if ('error' in result) throw new Error(result.error)
+    return result.publicUrl
   }
 
   async function resolveImages(items: ImageItem[]): Promise<string[]> {
@@ -147,15 +144,11 @@ export default function AdminDashboard({
 
     // Best-effort image cleanup from storage
     const paths = product.images
-      .map((url) => {
-        const marker = '/product-images/'
-        const idx = url.indexOf(marker)
-        return idx >= 0 ? url.slice(idx + marker.length) : null
-      })
+      .map(storagePathFromUrl)
       .filter((p): p is string => p !== null)
 
     if (paths.length > 0) {
-      await supabase.storage.from('product-images').remove(paths)
+      await deleteStorageImages(paths)
     }
 
     setProducts((prev) => prev.filter((p) => p.id !== product.id))
@@ -228,18 +221,35 @@ export default function AdminDashboard({
             <>
               {/* Stats row */}
               <p className="font-body text-small text-muted mb-5">
-                {products.length} products · {outOfStock} out of stock · {featuredCount} featured
+                {products.length} {products.length === 1 ? 'piece' : 'pieces'} ·{' '}
+                {outOfStock} unavailable · {featuredCount} featured
               </p>
 
               {/* Filter bar */}
               <div className="mb-6 space-y-3">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search products…"
-                  className="w-full md:w-72 font-body text-small text-hap-text bg-surface border border-border rounded-input px-4 py-2 outline-none focus:border-brand transition-colors"
-                />
+                <div className="relative w-full md:w-80">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    aria-hidden="true"
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted/70 pointer-events-none"
+                  >
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="M21 21l-4.35-4.35" />
+                  </svg>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search pieces…"
+                    className="w-full font-body text-small text-hap-text bg-surface border border-border rounded-input pl-10 pr-4 py-2.5 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all"
+                  />
+                </div>
                 <div className="overflow-x-auto no-scrollbar">
                   <div className="flex gap-2 pb-0.5">
                     {ADMIN_CATEGORIES.map(({ value, label }) => {
