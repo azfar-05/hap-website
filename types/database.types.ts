@@ -17,6 +17,7 @@ export type Product = {
   images: string[]
   in_stock: boolean
   featured: boolean
+  featured_at: string | null
   created_at: string
 }
 
@@ -30,8 +31,15 @@ export type ProductInsert = {
   color?: string | null
   size?: string | null
   material?: string | null
-  in_stock?: boolean // DB default: true
-  featured?: boolean // DB default: false
+  in_stock?: boolean
+  featured?: boolean
+  featured_at?: string | null
+}
+
+export type HeroSlot = {
+  slot: number
+  image_url: string
+  updated_at: string
 }
 
 /**
@@ -43,9 +51,9 @@ export type ProductInsert = {
  * Without the index signature, TypeScript resolves Schema to `never` and
  * makes all write-operation parameter types `never`.
  *
- * Named types (Product, ProductInsert) are kept as separate exports and used
- * throughout the rest of the codebase — explicit casts from Row → Product are
- * needed when consuming Supabase select results.
+ * Named types (Product, ProductInsert, HeroSlot) are kept as separate exports
+ * and used throughout the rest of the codebase — explicit casts from Row →
+ * Product are needed when consuming Supabase select results.
  */
 export type Database = {
   public: {
@@ -63,6 +71,7 @@ export type Database = {
           images: string[]
           in_stock: boolean
           featured: boolean
+          featured_at: string | null
           created_at: string
           [key: string]: unknown
         }
@@ -78,6 +87,7 @@ export type Database = {
           images: string[]
           in_stock?: boolean
           featured?: boolean
+          featured_at?: string | null
           created_at?: string
           [key: string]: unknown
         }
@@ -93,7 +103,29 @@ export type Database = {
           images?: string[]
           in_stock?: boolean
           featured?: boolean
+          featured_at?: string | null
           created_at?: string
+          [key: string]: unknown
+        }
+        Relationships: []
+      }
+      hero_images: {
+        Row: {
+          slot: number
+          image_url: string
+          updated_at: string
+          [key: string]: unknown
+        }
+        Insert: {
+          slot: number
+          image_url: string
+          updated_at?: string
+          [key: string]: unknown
+        }
+        Update: {
+          slot?: number
+          image_url?: string
+          updated_at?: string
           [key: string]: unknown
         }
         Relationships: []

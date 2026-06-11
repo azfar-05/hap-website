@@ -12,7 +12,7 @@ design and layout decision must be mobile-first, with desktop as a graceful exte
 - Zero maintenance required from the developer after handoff
 
 ## Tech Stack
-- **Framework:** Next.js 14+ (App Router)
+- **Framework:** Next.js 15 (App Router)
 - **Database + Auth + Storage:** Supabase
 - **Styling:** Tailwind CSS v3 with custom design tokens
 - **Fonts:** Google Fonts (Cormorant Garamond for display, DM Sans for body)
@@ -100,12 +100,15 @@ modal:      0 24px 64px rgba(44, 31, 31, 0.16)
 ```
 
 ### Signature Design Element
-**Staggered editorial product grid with a masonry-inspired feel on mobile.**
-On mobile, the first product card in each category section spans full width with a
-taller image ratio (4:3), while subsequent cards are in a 2-column grid (3:4 portrait
-ratio). This creates a magazine-layout rhythm that feels intentional and premium,
-not like a generic grid of same-size cards. On desktop, the grid is a clean 4-column
-layout with consistent proportions.
+**Clean uniform product grid with editorial whitespace.**
+All product cards use a 1:1 square image container with `object-fit: contain` and
+`--color-surface` as the image background colour. This ensures every product is
+always fully visible — nothing is ever cropped or distorted, regardless of the
+image's natural dimensions. The grid is 2 columns on mobile, 3 on tablet, 4 on
+desktop. Generous whitespace between cards keeps the feel curated, not dense.
+
+Admin upload guidance: "For best results, shoot on a white or warm neutral
+background. Your full image will always be shown — nothing is ever cropped."
 
 ### Motion & Animation
 Restraint is the rule. Only two animation moments:
@@ -121,29 +124,34 @@ read as AI-generated and slow the experience on mobile.
 ### ProductCard
 - Shows: image (lazy loaded via Next.js Image), product name (Cormorant h3),
   price (DM Sans, --color-brand), category badge (pill), in-stock indicator
+- Image container: 1:1 square, object-fit: contain, --color-surface background
 - Optional fields (color, size, material) are NOT shown on the card — only on
   the product detail page
-- If `in_stock` is false: show a subtle "Out of Stock" overlay on the image,
-  mute the card slightly (opacity 0.7), disable WhatsApp button
-- If `featured` is true: no special badge needed on catalog — featured is only
-  used to populate the homepage hero section
+- If `in_stock` is false: show a subtle "Currently Unavailable" overlay on the
+  image, mute the card slightly (opacity 0.7)
+- If `featured` is true: no special badge on the card — featured drives the
+  homepage "Our Picks" section and the catalog "Featured" filter pill only
 
 ### ProductDetail (/product/[id])
 - Full-width image (or image carousel if multiple images)
+- Image display: object-fit: contain, --color-surface background — never crop
 - Name in display font, price prominent
 - Description (if present), then attribute pills for color/size/material
   (only render pills that have values — never render empty ones)
-- WhatsApp CTA button: deep link to her WhatsApp with pre-filled message:
-  "Hi! I'm interested in [product name]." — make the number configurable via
+- WhatsApp CTA button: "Ask about this piece" — deep link to WhatsApp with
+  pre-filled message: "Hi! I'm interested in [product name]." — number from
   env variable NEXT_PUBLIC_WHATSAPP_NUMBER
-- "Back to catalog" link, not a button
+- On tap, button briefly shows "Opening WhatsApp…" for 1.5s before navigating
+- "← Keep browsing" link back to catalog — not a button
 
 ### FilterBar (/catalog)
 - Categories rendered as horizontally scrollable pill tabs on mobile
   (no dropdown, no sidebar — native mobile pattern)
+- Pill order: "Everything" → "Featured" → tableware → kitchenware → crockery →
+  cutlery → home_decor
+- "Featured" pill filters grid to only featured = true products
 - Active pill: --color-brand background, white text
 - Inactive pill: --color-surface background, --color-muted text, --color-border border
-- "All" pill always first
 - Smooth horizontal scroll, hide scrollbar visually (overflow-x: auto,
   scrollbar-width: none)
 
@@ -152,9 +160,17 @@ read as AI-generated and slow the experience on mobile.
 - Background: --color-bg
 - Left-aligned editorial layout: small eyebrow text ("homes and plates"), large
   display headline, short tagline, CTA button linking to /catalog
-- Right side (desktop) or bottom (mobile): a collage of 3 featured product images
-  arranged in an asymmetric stack (not a slideshow, not a single hero image)
-- Featured products are pulled from Supabase where featured = true (max 3)
+- Right side (desktop) or bottom (mobile): a collage of exactly 3 hand-picked
+  images from the `hero_images` table (slots 1, 2, 3) — NOT tied to featured products
+- If hero_images slots are empty, collage area renders nothing gracefully
+
+### "Our Picks" Section (/)
+- Appears below the hero, above the footer
+- Heading: "Our Picks" in Cormorant Garamond h2, left-aligned
+- Shows products where featured = true, ordered by featured_at DESC, max 8
+- Mobile: horizontally scrollable strip of product cards
+- Desktop: 4-column grid
+- If no featured products exist, render nothing — no heading, no empty state
 
 ### Navigation
 - Logo (SVG or Next.js Image) left-aligned
@@ -165,6 +181,7 @@ read as AI-generated and slow the experience on mobile.
 
 ### Footer
 - Simple, minimal. Brand name, tagline, Instagram link, WhatsApp link
+- One warm brand line: "Made with care, for your everyday"
 - Background: --color-text (deep warm near-black), text in --color-bg
 - No sitemap, no newsletter — V1 only
 
@@ -186,15 +203,26 @@ read as AI-generated and slow the experience on mobile.
 | images      | text[]      | yes      | array of Supabase Storage public URLs, min 1       |
 | in_stock    | boolean     | yes      | default true                                       |
 | featured    | boolean     | yes      | default false                                      |
+| featured_at | timestamptz | no       | set to now() when featured toggled ON, null when OFF |
 | created_at  | timestamptz | auto     | auto-generated                                     |
 
 **Category enum values:** `tableware` | `kitchenware` | `crockery` | `cutlery` | `home_decor`
 
+### hero_images table
+| column    | type        | notes                                      |
+|-----------|-------------|--------------------------------------------|
+| slot      | integer     | primary key, values 1, 2, 3 only           |
+| image_url | text        | Supabase Storage public URL                |
+| updated_at| timestamptz | auto-updated on write                      |
+
+The hero collage always pulls all 3 slots ordered by slot ASC. This table is
+completely independent of the products table and the featured flag.
+
 ### Supabase RLS Policies
-- **Public (anon role):** SELECT only on `products` table
-- **Authenticated role:** full INSERT, UPDATE, DELETE on `products` table
+- **Public (anon role):** SELECT only on `products` and `hero_images` tables
+- **Authenticated role:** full INSERT, UPDATE, DELETE on `products` and `hero_images`
 - **Storage bucket `product-images`:** public read, authenticated write and delete
-- Enable RLS on the products table — do not skip this
+- Enable RLS on all tables — do not skip this
 
 ---
 
@@ -212,11 +240,42 @@ read as AI-generated and slow the experience on mobile.
 ### Admin Panel Features
 - Product list table: name, category, price, in_stock toggle, featured toggle,
   edit button, delete button
-- Add/Edit form: all product fields, image uploader (multiple images,
-  drag to reorder), inline validation
-- Image upload: directly to Supabase Storage, show preview before saving
+- featured toggle: when turned ON set featured_at = now(); when OFF set featured_at = null
+- Add/Edit form: all product fields, image uploader (multiple images, drag to reorder)
+- Cover image: first image in the array is the catalog cover. Badge it with
+  "Cover · shown in catalog" pill in --color-brand. All other images show a
+  "Set as cover" button that moves them to index 0.
+- Helper text below upload area: "The first image is shown on catalog cards."
+  in --color-muted, text-sm, DM Sans
 - Delete: confirmation dialog before deleting (cannot be undone)
 - Simple toast notifications for success/error states
+- Hero Collage section: 3 labeled upload slots (Slot 1, Slot 2, Slot 3), each
+  shows current image with replace/remove. Independent of product management.
+
+---
+
+## Architecture Rules (non-negotiable)
+
+### Supabase Storage Uploads — ALWAYS server-side
+All Supabase Storage uploads MUST happen in server actions using `createAdminClient()`
+(service role key). NEVER upload to Supabase Storage from a client component using
+`createClient()` (anon key) — this will always fail with a permissions error.
+
+The correct pattern:
+1. Client component collects the file and builds a FormData object
+2. Passes it to a server action
+3. Server action uses `createAdminClient()` to upload to storage and returns the public URL
+
+Look at how existing product image uploads are handled and follow the exact same
+pattern for any new upload functionality (e.g. hero images).
+
+### Admin client vs regular client
+- `createAdminClient()` — uses SUPABASE_SERVICE_ROLE_KEY, bypasses RLS, server-only.
+  Use for all admin mutations (insert, update, delete, storage writes).
+- `createClient()` (server) — uses anon key + session cookie, respects RLS.
+  Use for public data reads and auth operations.
+- `createClient()` (client-side) — anon key only, no write permissions to storage.
+  Never use for uploads or mutations.
 
 ---
 
@@ -232,11 +291,11 @@ NEXT_PUBLIC_WHATSAPP_NUMBER=   # format: 91XXXXXXXXXX (country code + number)
 ---
 
 ## V1 Scope (build only this)
-- [ ] `/` — Hero with featured products, link to catalog
-- [ ] `/catalog` — All products, category filter pills, product grid
+- [ ] `/` — Hero collage + "Our Picks" featured section + link to catalog
+- [ ] `/catalog` — All products, filter pills (Everything / Featured / categories), product grid
 - [ ] `/product/[id]` — Product detail, image display, attribute pills, WhatsApp CTA
 - [ ] `/admin/login` — Admin login page
-- [ ] `/admin` — Product management dashboard
+- [ ] `/admin` — Product management dashboard + Hero Collage manager
 - [ ] Fully responsive on all screen sizes (mobile-first)
 - [ ] Deployed to Vercel with environment variables configured
 
@@ -261,3 +320,15 @@ NEXT_PUBLIC_WHATSAPP_NUMBER=   # format: 91XXXXXXXXXX (country code + number)
 - Optional fields must be null-checked before rendering — never render empty
   UI elements for missing data
 - WhatsApp number and admin email must come from env variables — never hardcoded
+
+## Micro-copy Reference
+Use this language consistently across the UI. Never use the generic alternatives.
+
+| Context                  | Use this               | Not this          |
+|--------------------------|------------------------|-------------------|
+| Filter pill — all        | "Everything"           | "All"             |
+| Homepage featured section| "Our Picks"            | "Featured"        |
+| Out of stock state       | "Currently Unavailable"| "Out of Stock"    |
+| WhatsApp CTA button      | "Ask about this piece" | "Buy on WhatsApp" |
+| Back to catalog link     | "← Keep browsing"      | "Back to catalog" |
+| Price currency symbol    | ₹ (slightly smaller than number) | Rs. / INR |

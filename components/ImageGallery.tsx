@@ -13,15 +13,16 @@ export default function ImageGallery({ images, productName }: Props) {
 
   return (
     <div>
-      {/* Main image */}
-      <div className="relative aspect-[3/4] rounded-image overflow-hidden bg-border">
+      {/* Main image — square, full image always visible */}
+      <div className="aspect-square rounded-image overflow-hidden bg-surface w-full">
         <FadingImage
           key={images[activeIndex]}
           src={images[activeIndex]}
           alt={productName}
-          fill
+          width={800}
+          height={800}
           sizes="(min-width: 768px) 50vw, 100vw"
-          className="object-cover"
+          className="w-full h-full object-contain"
           priority
         />
       </div>
@@ -35,16 +36,17 @@ export default function ImageGallery({ images, productName }: Props) {
               onClick={() => setActiveIndex(i)}
               aria-label={`View image ${i + 1}`}
               className={[
-                "relative w-12 h-16 flex-shrink-0 rounded-btn overflow-hidden border-2 transition-colors duration-150",
+                "relative w-14 h-14 flex-shrink-0 rounded-btn overflow-hidden border-2 bg-surface transition-colors duration-150",
                 i === activeIndex ? "border-brand" : "border-border hover:border-accent",
               ].join(" ")}
             >
               <FadingImage
                 src={img}
                 alt={`${productName} — view ${i + 1}`}
-                fill
-                sizes="64px"
-                className="object-cover"
+                width={56}
+                height={56}
+                sizes="56px"
+                className="w-full h-full object-contain"
               />
             </button>
           ))}

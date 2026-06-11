@@ -12,12 +12,9 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 interface Props {
   product: Product;
-  /** On mobile: spans full grid width (col-span-2) with 4:3 image.
-   *  On desktop: reverts to standard 1-column 3:4 card. */
-  isLead?: boolean;
 }
 
-export default function ProductCard({ product, isLead = false }: Props) {
+export default function ProductCard({ product }: Props) {
   const label = CATEGORY_LABELS[product.category] ?? product.category;
   const price = new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -30,31 +27,26 @@ export default function ProductCard({ product, isLead = false }: Props) {
       href={`/product/${product.id}`}
       className={[
         "group block",
-        "hover:-translate-y-1 transition-transform duration-200",
         !product.in_stock ? "opacity-70" : "",
-        isLead ? "col-span-2 md:col-span-2" : "",
+        "hover:-translate-y-1 transition-transform duration-200",
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      {/* Image — the card itself */}
+      {/* Square image container — full image always visible, no crop */}
       <div
         className={[
-          "relative overflow-hidden rounded-image bg-border",
+          "relative aspect-square overflow-hidden rounded-image bg-surface w-full",
           "shadow-card-rest group-hover:shadow-card-hover transition-shadow duration-200",
-          isLead ? "aspect-[4/3]" : "aspect-[3/4]",
         ].join(" ")}
       >
         <FadingImage
           src={product.images[0]}
           alt={product.name}
-          fill
-          sizes={
-            isLead
-              ? "(min-width: 768px) 50vw, 100vw"
-              : "(min-width: 768px) 25vw, 50vw"
-          }
-          className="object-cover"
+          width={600}
+          height={600}
+          sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+          className="w-full h-full object-contain"
         />
         {!product.in_stock && (
           <div className="absolute inset-0 bg-hap-text/50 flex items-center justify-center">
@@ -65,14 +57,9 @@ export default function ProductCard({ product, isLead = false }: Props) {
         )}
       </div>
 
-      {/* Text below the image, on page background */}
+      {/* Text below the image */}
       <div className="px-1 pt-2 pb-4">
-        <h3
-          className={[
-            "font-display text-hap-text leading-snug",
-            isLead ? "text-h2" : "text-h3",
-          ].join(" ")}
-        >
+        <h3 className="font-display text-h3 text-hap-text leading-snug">
           {product.name}
         </h3>
         <p className="font-body text-price text-brand font-semibold mt-1">

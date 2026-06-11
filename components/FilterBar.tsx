@@ -2,10 +2,11 @@
 
 import type { Category } from "@/types/database.types";
 
-export type FilterValue = "all" | Category;
+export type FilterValue = "all" | "featured" | Category;
 
 const FILTERS: { value: FilterValue; label: string }[] = [
   { value: "all", label: "All" },
+  { value: "featured", label: "Featured" },
   { value: "tableware", label: "Tableware" },
   { value: "kitchenware", label: "Kitchenware" },
   { value: "crockery", label: "Crockery" },

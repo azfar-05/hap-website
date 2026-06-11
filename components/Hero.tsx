@@ -1,23 +1,19 @@
 import Link from "next/link";
-import type { Product } from "@/types/database.types";
+import type { HeroSlot } from "@/types/database.types";
 import FadingImage from "@/components/ui/FadingImage";
 
 interface Props {
-  featuredProducts: Product[];
+  heroImages: HeroSlot[];
 }
 
-export default function Hero({ featuredProducts }: Props) {
-  const collageItems = featuredProducts.slice(0, 3);
+export default function Hero({ heroImages }: Props) {
+  // Sort by slot ascending and take up to 3
+  const collageItems = [...heroImages].sort((a, b) => a.slot - b.slot).slice(0, 3);
 
   return (
     <section className="min-h-screen md:h-hero-desktop bg-bg flex flex-col md:flex-row overflow-hidden">
       {/* ─── Text column ─── */}
       <div className="flex-1 flex flex-col justify-center pt-nav-mobile md:pt-0 px-6 md:pl-20 lg:pl-28 pb-10 md:pb-0 md:w-[55%] md:flex-none">
-        {/*
-          md:pt-0 here because on desktop the text is vertically centered
-          within the column and the nav sits above — no extra nudge needed.
-          On mobile, pt-nav-mobile clears the fixed nav.
-        */}
         <p className="font-body text-xs tracking-widest uppercase text-brand mb-5">
           homes and plates
         </p>
@@ -52,7 +48,7 @@ export default function Hero({ featuredProducts }: Props) {
           )}
         </div>
 
-        {/* Desktop: original asymmetric collage — top-nav-desktop pushes it below the fixed nav */}
+        {/* Desktop: asymmetric collage — top-nav-desktop pushes it below fixed nav */}
         <div className="hidden md:block absolute inset-0 md:top-nav-desktop overflow-hidden">
           {collageItems.length > 0 ? (
             <Collage items={collageItems} />
@@ -67,36 +63,36 @@ export default function Hero({ featuredProducts }: Props) {
 
 // ─── Mobile: stacked overlapping collage ─────────────────────────────────────
 
-function MobileCollage({ items }: { items: Product[] }) {
+function MobileCollage({ items }: { items: HeroSlot[] }) {
   return (
     <div className="relative overflow-visible mx-4 mt-8">
-      {items[0]?.images[0] && (
+      {items[0] && (
         <div className="relative w-full aspect-[4/3] rotate-1 rounded-2xl overflow-hidden shadow-card-hover">
           <FadingImage
-            src={items[0].images[0]}
-            alt={items[0].name}
+            src={items[0].image_url}
+            alt={`Hero image ${items[0].slot}`}
             fill
             sizes="90vw"
             className="object-cover"
           />
         </div>
       )}
-      {items[1]?.images[0] && (
+      {items[1] && (
         <div className="relative w-3/4 ml-auto aspect-[3/4] -rotate-2 -mt-8 rounded-2xl overflow-hidden shadow-card-rest">
           <FadingImage
-            src={items[1].images[0]}
-            alt={items[1].name}
+            src={items[1].image_url}
+            alt={`Hero image ${items[1].slot}`}
             fill
             sizes="70vw"
             className="object-cover"
           />
         </div>
       )}
-      {items[2]?.images[0] && (
+      {items[2] && (
         <div className="relative w-2/3 aspect-[4/3] rotate-1 -mt-6 rounded-2xl overflow-hidden shadow-card-rest">
           <FadingImage
-            src={items[2].images[0]}
-            alt={items[2].name}
+            src={items[2].image_url}
+            alt={`Hero image ${items[2].slot}`}
             fill
             sizes="60vw"
             className="object-cover"
@@ -117,17 +113,17 @@ function MobileCollagePlaceholder() {
   );
 }
 
-// ─── Asymmetric collage of up to 3 product images ───────────────────────────
+// ─── Desktop: asymmetric collage of up to 3 images ───────────────────────────
 
-function Collage({ items }: { items: Product[] }) {
+function Collage({ items }: { items: HeroSlot[] }) {
   return (
     <div className="relative w-full h-full">
       {/* Primary — largest, left-center */}
-      {items[0] && items[0].images.length > 0 && (
+      {items[0] && (
         <div className="absolute top-[8%] left-[5%] w-[56%] aspect-[3/4] rounded-image overflow-hidden shadow-card-hover z-20">
           <FadingImage
-            src={items[0].images[0]}
-            alt={items[0].name}
+            src={items[0].image_url}
+            alt={`Hero image ${items[0].slot}`}
             fill
             sizes="(min-width: 768px) 25vw, 56vw"
             className="object-cover"
@@ -136,11 +132,11 @@ function Collage({ items }: { items: Product[] }) {
       )}
 
       {/* Secondary — bottom-right, slight clockwise tilt */}
-      {items[1] && items[1].images.length > 0 && (
+      {items[1] && (
         <div className="absolute bottom-[4%] right-[2%] w-[47%] aspect-[3/4] rounded-image overflow-hidden shadow-card-rest rotate-2 z-10">
           <FadingImage
-            src={items[1].images[0]}
-            alt={items[1].name}
+            src={items[1].image_url}
+            alt={`Hero image ${items[1].slot}`}
             fill
             sizes="(min-width: 768px) 21vw, 47vw"
             className="object-cover"
@@ -149,11 +145,11 @@ function Collage({ items }: { items: Product[] }) {
       )}
 
       {/* Accent — top-right, slight counter-clockwise tilt, in front */}
-      {items[2] && items[2].images.length > 0 && (
+      {items[2] && (
         <div className="absolute top-[2%] right-[4%] w-[39%] aspect-[3/4] rounded-image overflow-hidden shadow-card-rest -rotate-2 z-30">
           <FadingImage
-            src={items[2].images[0]}
-            alt={items[2].name}
+            src={items[2].image_url}
+            alt={`Hero image ${items[2].slot}`}
             fill
             sizes="(min-width: 768px) 18vw, 39vw"
             className="object-cover"
@@ -164,7 +160,7 @@ function Collage({ items }: { items: Product[] }) {
   );
 }
 
-// ─── Placeholder shapes shown when no featured products exist yet ─────────────
+// ─── Placeholder shapes shown when no hero images are set ────────────────────
 
 function CollagePlaceholder() {
   return (

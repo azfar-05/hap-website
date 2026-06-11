@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import type { Product, Category } from '@/types/database.types'
+import type { Product, Category, HeroSlot } from '@/types/database.types'
 
 type CategoryFilter = Category | 'all'
 
@@ -15,6 +15,7 @@ const ADMIN_CATEGORIES: { value: CategoryFilter; label: string }[] = [
   { value: 'cutlery', label: 'Cutlery' },
   { value: 'home_decor', label: 'Home Decor' },
 ]
+
 import {
   addProduct,
   updateProduct,
@@ -24,14 +25,17 @@ import {
 import ProductTable from './ProductTable'
 import ProductFormPanel, { type PanelState, type ProductFormData } from './ProductFormPanel'
 import DeleteDialog, { type DeleteDialogState } from './DeleteDialog'
+import HeroCollageManager from './HeroCollageManager'
 import type { ImageItem } from './ImageUploader'
 
 type Toast = { id: string; message: string; type: 'success' | 'error' }
 
 export default function AdminDashboard({
   initialProducts,
+  initialHeroSlots,
 }: {
   initialProducts: Product[]
+  initialHeroSlots: HeroSlot[]
 }) {
   const router = useRouter()
   // Browser client kept only for auth.signOut() and storage uploads.
@@ -74,9 +78,10 @@ export default function AdminDashboard({
 
   async function uploadImage(file: File): Promise<string> {
     const ext = file.name.split('.').pop() ?? 'jpg'
-    const uid = typeof crypto.randomUUID === 'function'
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+    const uid =
+      typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
     const path = `products/${uid}.${ext}`
     const { error } = await supabase.storage
       .from('product-images')
@@ -98,7 +103,10 @@ export default function AdminDashboard({
     try {
       imageUrls = await resolveImages(formData.imageItems)
     } catch (storageErr) {
-      showToast('error', `Image upload failed: ${storageErr instanceof Error ? storageErr.message : String(storageErr)}`)
+      showToast(
+        'error',
+        `Image upload failed: ${storageErr instanceof Error ? storageErr.message : String(storageErr)}`
+      )
       throw storageErr
     }
 
@@ -190,6 +198,7 @@ export default function AdminDashboard({
 
       {/* Main */}
       <main className="max-w-content mx-auto px-4 md:px-8 py-8">
+        {/* ── Product management ───────────────────────────────────────────── */}
         {products.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <p className="font-display text-h2 text-muted">No products yet</p>
@@ -205,7 +214,7 @@ export default function AdminDashboard({
           </div>
         ) : (() => {
           const outOfStock = products.filter((p) => !p.in_stock).length
-          const featured = products.filter((p) => p.featured).length
+          const featuredCount = products.filter((p) => p.featured).length
           const filteredProducts = products.filter((p) => {
             const matchesSearch = p.name
               .toLowerCase()
@@ -219,7 +228,7 @@ export default function AdminDashboard({
             <>
               {/* Stats row */}
               <p className="font-body text-small text-muted mb-5">
-                {products.length} products · {outOfStock} out of stock · {featured} featured
+                {products.length} products · {outOfStock} out of stock · {featuredCount} featured
               </p>
 
               {/* Filter bar */}
@@ -272,6 +281,14 @@ export default function AdminDashboard({
             </>
           )
         })()}
+
+        {/* ── Hero Collage ─────────────────────────────────────────────────── */}
+        <div className="border-t border-border mt-12 pt-10">
+          <HeroCollageManager
+            initialSlots={initialHeroSlots}
+            onToast={showToast}
+          />
+        </div>
       </main>
 
       {/* Mobile FAB */}

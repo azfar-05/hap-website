@@ -63,7 +63,6 @@ export default function ProductFormPanel({ state, onClose, onSubmit }: Props) {
   const [submitted, setSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Reinitialise when the panel opens or target product changes
   const openKey = state.open
     ? state.mode === 'edit'
       ? `edit:${state.product.id}`
@@ -75,7 +74,6 @@ export default function ProductFormPanel({ state, onClose, onSubmit }: Props) {
     setForm(state.mode === 'edit' ? fromProduct(state.product) : EMPTY_FORM)
     setSubmitted(false)
     setIsSubmitting(false)
-    // openKey captures all relevant changes; state is always current when openKey changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openKey])
 
@@ -118,7 +116,7 @@ export default function ProductFormPanel({ state, onClose, onSubmit }: Props) {
       aria-modal={state.open}
       aria-label={title}
     >
-      {/* Overlay — must be pointer-events-none when closed so it doesn't block the panel below */}
+      {/* Backdrop */}
       <div
         className={`absolute inset-0 bg-hap-text/40 transition-opacity duration-300 ${
           state.open ? 'opacity-100' : 'opacity-0 pointer-events-none'
@@ -126,13 +124,13 @@ export default function ProductFormPanel({ state, onClose, onSubmit }: Props) {
         onClick={onClose}
       />
 
-      {/* Panel */}
+      {/* Slide-in panel */}
       <div
         className={`absolute right-0 top-0 h-full w-full md:w-[480px] bg-surface shadow-modal overflow-y-auto transition-transform duration-300 ${
           state.open ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        {/* Header */}
+        {/* Sticky header */}
         <div className="sticky top-0 z-10 bg-surface border-b border-border px-6 py-4 flex items-center justify-between">
           <h2 className="font-display text-h3 text-hap-text">{title}</h2>
           <button
@@ -263,7 +261,7 @@ export default function ProductFormPanel({ state, onClose, onSubmit }: Props) {
           </div>
 
           {/* Images */}
-          <div>
+          <div className="space-y-3">
             <label className="block font-body text-small font-medium text-muted mb-1.5">
               Images
             </label>

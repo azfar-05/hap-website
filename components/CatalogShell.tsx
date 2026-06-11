@@ -30,14 +30,30 @@ export default function CatalogShell({ products, hasError = false }: Props) {
     );
   }
 
-  const filtered =
+  const filtered: Product[] =
     activeCategory === "all"
       ? products
+      : activeCategory === "featured"
+      ? products.filter((p) => p.featured)
       : products.filter((p) => p.category === activeCategory);
+
+  function emptyMessage(): string {
+    if (activeCategory === "all") return "The collection is being curated.";
+    if (activeCategory === "featured") return "No featured pieces yet.";
+    return `No ${CATEGORY_NAMES[activeCategory as Category]} pieces yet.`;
+  }
+
+  function emptySub(): string {
+    if (activeCategory === "all")
+      return "Our catalog is being prepared — come back soon to explore the full collection.";
+    if (activeCategory === "featured")
+      return "Check back soon — featured pieces will appear here when the collection is curated.";
+    return `We haven't added any ${CATEGORY_NAMES[activeCategory as Category]} to the collection just yet. Check back soon, or browse everything we have.`;
+  }
 
   return (
     <>
-      {/* Editorial header: thin rule + right-aligned piece count — stays on surface with the catalog header */}
+      {/* Editorial header: right-aligned piece count */}
       <div className="bg-surface border-t border-border">
         <div className="max-w-content mx-auto px-6 md:px-10 py-2 flex items-center justify-end">
           <span className="font-display text-small italic text-muted whitespace-nowrap">
@@ -51,16 +67,8 @@ export default function CatalogShell({ products, hasError = false }: Props) {
       <div className="max-w-content mx-auto px-6 md:px-10 pb-section-mobile md:pb-section-desktop">
         {filtered.length === 0 ? (
           <EmptyState
-            message={
-              activeCategory === "all"
-                ? "The collection is being curated."
-                : `No ${CATEGORY_NAMES[activeCategory as Category]} pieces yet.`
-            }
-            sub={
-              activeCategory === "all"
-                ? "Our catalog is being prepared — come back soon to explore the full collection."
-                : `We haven't added any ${CATEGORY_NAMES[activeCategory as Category]} to the collection just yet. Check back soon, or browse everything we have.`
-            }
+            message={emptyMessage()}
+            sub={emptySub()}
             action={
               activeCategory !== "all"
                 ? { label: "View all pieces", onClick: () => setActiveCategory("all") }
@@ -68,17 +76,9 @@ export default function CatalogShell({ products, hasError = false }: Props) {
             }
           />
         ) : (
-          /*
-            Mobile: 2-col grid. Lead card (index 0) spans full width (col-span-2)
-            with 4:3 image. Desktop: 4-col grid, lead spans 2 cols, rest are 1 col.
-          */
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-6 md:mt-10">
-            {filtered.map((product, index) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                isLead={index === 0}
-              />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mt-6 md:mt-10">
+            {filtered.map((product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         )}
@@ -98,16 +98,13 @@ interface EmptyStateProps {
 function EmptyState({ message, sub, action }: EmptyStateProps) {
   return (
     <div className="max-w-content mx-auto px-6 md:px-10 flex flex-col items-center justify-center py-section-mobile md:py-section-desktop text-center">
-      {/* Decorative rule */}
       <div className="w-12 h-px bg-border mb-8" />
-
       <p className="font-display text-h2 text-hap-text tracking-[0.03em] mb-4">
         {message}
       </p>
       <p className="font-body text-body text-muted max-w-[38ch] mb-8 leading-relaxed">
         {sub}
       </p>
-
       {action && (
         <button
           onClick={action.onClick}

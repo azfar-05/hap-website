@@ -83,8 +83,65 @@ export async function toggleProduct(
   value: boolean
 ): Promise<{ error: string } | { ok: true }> {
   const supabase = createAdminClient()
-  const patch = field === 'in_stock' ? { in_stock: value } : { featured: value }
+  const patch =
+    field === 'in_stock'
+      ? { in_stock: value }
+      : { featured: value, featured_at: value ? new Date().toISOString() : null }
   const { error } = await supabase.from('products').update(patch).eq('id', id)
+  if (error) return { error: error.message }
+  return { ok: true }
+}
+
+// ── Hero collage ──────────────────────────────────────────────────────────────
+
+export async function upsertHeroSlot(
+  slot: number,
+  imageUrl: string
+): Promise<{ error: string } | { ok: true }> {
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('hero_images')
+    .upsert({ slot, image_url: imageUrl, updated_at: new Date().toISOString() })
+  if (error) return { error: error.message }
+  return { ok: true }
+}
+
+export async function removeHeroSlot(slot: number): Promise<{ error: string } | { ok: true }> {
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('hero_images').delete().eq('slot', slot)
+  if (error) return { error: error.message }
+  return { ok: true }
+}
+
+export async function uploadHeroImage(
+  formData: FormData
+): Promise<{ error: string } | { publicUrl: string }> {
+  const supabase = createAdminClient()
+  const file = formData.get('file') as File
+  if (!file) return { error: 'No file provided' }
+
+  const ext = file.name.split('.').pop() ?? 'jpg'
+  const uid = crypto.randomUUID()
+  const path = `hero/${uid}.${ext}`
+
+  const { error: uploadError } = await supabase.storage
+    .from('product-images')
+    .upload(path, file, { cacheControl: '3600' })
+
+  if (uploadError) return { error: uploadError.message }
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('product-images')
+    .getPublicUrl(path)
+
+  return { publicUrl }
+}
+
+export async function deleteHeroImage(
+  path: string
+): Promise<{ error: string } | { ok: true }> {
+  const supabase = createAdminClient()
+  const { error } = await supabase.storage.from('product-images').remove([path])
   if (error) return { error: error.message }
   return { ok: true }
 }
