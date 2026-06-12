@@ -57,7 +57,7 @@ export default function Hero({ heroImages }: Props) {
       </div>
 
       {/* ─── Image column ─── */}
-      <div className="flex-none md:flex-1 relative md:overflow-hidden">
+      <div className="flex-none md:flex-1 relative">
         {/* Mobile: asymmetric stacked collage */}
         <div className="md:hidden pb-14">
           {collageItems.length > 0 ? (
@@ -68,7 +68,7 @@ export default function Hero({ heroImages }: Props) {
         </div>
 
         {/* Desktop: asymmetric collage — top-nav-desktop pushes it below fixed nav */}
-        <div className="hidden md:block absolute inset-0 md:top-nav-desktop overflow-hidden">
+        <div className="hidden md:block absolute inset-0 md:top-nav-desktop">
           {collageItems.length > 0 ? (
             <Collage items={collageItems} />
           ) : (
@@ -143,41 +143,41 @@ function MobileCollagePlaceholder() {
 function Collage({ items }: { items: HeroSlot[] }) {
   return (
     <div className="relative w-full h-full">
-      {/* Primary — largest, left-center, slight counter tilt */}
+      {/* Primary — large, left of column, tall portrait */}
       {items[0] && (
-        <div className={`absolute top-[8%] left-[5%] w-[56%] aspect-[3/4] -rotate-1 shadow-print z-20 ${printFrame}`}>
+        <div className={`absolute top-[8%] left-[4%] w-[52%] aspect-[3/4] -rotate-1 shadow-print z-20 ${printFrame}`}>
           <FadingImage
             src={items[0].image_url}
             alt={`Hero image ${items[0].slot}`}
             fill
-            sizes="(min-width: 768px) 25vw, 56vw"
+            sizes="(min-width: 768px) 24vw, 52vw"
             className="object-cover"
             priority
           />
         </div>
       )}
 
-      {/* Secondary — bottom-right, slight clockwise tilt */}
+      {/* Secondary — top-right, clearly separate from primary */}
       {items[1] && (
-        <div className={`absolute bottom-[4%] right-[2%] w-[47%] aspect-[3/4] rotate-2 shadow-card-hover z-10 ${printFrame}`}>
+        <div className={`absolute top-[4%] right-[4%] w-[40%] aspect-[3/4] rotate-2 shadow-card-hover z-10 ${printFrame}`}>
           <FadingImage
             src={items[1].image_url}
             alt={`Hero image ${items[1].slot}`}
             fill
-            sizes="(min-width: 768px) 21vw, 47vw"
+            sizes="(min-width: 768px) 18vw, 40vw"
             className="object-cover"
           />
         </div>
       )}
 
-      {/* Accent — top-right, counter tilt, in front */}
+      {/* Accent — bottom-center, overlaps both, in front */}
       {items[2] && (
-        <div className={`absolute top-[2%] right-[4%] w-[39%] aspect-[3/4] -rotate-3 shadow-print z-30 ${printFrame}`}>
+        <div className={`absolute bottom-[5%] left-[28%] w-[44%] aspect-[3/4] -rotate-2 shadow-print z-30 ${printFrame}`}>
           <FadingImage
             src={items[2].image_url}
             alt={`Hero image ${items[2].slot}`}
             fill
-            sizes="(min-width: 768px) 18vw, 39vw"
+            sizes="(min-width: 768px) 20vw, 44vw"
             className="object-cover"
           />
         </div>
@@ -191,9 +191,9 @@ function Collage({ items }: { items: HeroSlot[] }) {
 function CollagePlaceholder() {
   return (
     <div className="relative w-full h-full">
-      <div className={`absolute top-[8%] left-[5%] w-[56%] aspect-[3/4] -rotate-1 bg-border z-20 ${printFrame}`} />
-      <div className={`absolute bottom-[4%] right-[2%] w-[47%] aspect-[3/4] rotate-2 bg-border z-10 ${printFrame}`} />
-      <div className={`absolute top-[2%] right-[4%] w-[39%] aspect-[3/4] -rotate-3 bg-border z-30 ${printFrame}`} />
+      <div className={`absolute top-[8%] left-[4%] w-[52%] aspect-[3/4] -rotate-1 bg-border z-20 ${printFrame}`} />
+      <div className={`absolute top-[4%] right-[4%] w-[40%] aspect-[3/4] rotate-2 bg-border z-10 ${printFrame}`} />
+      <div className={`absolute bottom-[5%] left-[28%] w-[44%] aspect-[3/4] -rotate-2 bg-border z-30 ${printFrame}`} />
     </div>
   );
 }

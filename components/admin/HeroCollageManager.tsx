@@ -16,7 +16,7 @@ interface Props {
   onToast: (type: 'success' | 'error', message: string) => void
 }
 
-const SLOT_LABELS = ['First image', 'Second image', 'Third image'] as const
+const SLOT_LABELS = ['Left card (large)', 'Top-right card', 'Front card (overlap)'] as const
 
 export default function HeroCollageManager({ initialSlots, onToast }: Props) {
   const [slots, setSlots] = useState<HeroSlot[]>(initialSlots)
@@ -124,15 +124,15 @@ export default function HeroCollageManager({ initialSlots, onToast }: Props) {
                 {SLOT_LABELS[slot - 1]}
               </p>
 
-              {/* Square preview */}
-              <div className="relative w-full aspect-square rounded-card overflow-hidden bg-border border border-border">
+              {/* Portrait preview — matches the actual 3/4 card shape used in the hero collage */}
+              <div className="relative w-full aspect-[3/4] rounded-card overflow-hidden bg-surface border border-border">
                 {current ? (
                   <Image
                     src={current.image_url}
                     alt={`Hero collage slot ${slot}`}
                     fill
                     sizes="(min-width: 640px) 33vw, 90vw"
-                    className="object-cover"
+                    className="object-contain"
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">

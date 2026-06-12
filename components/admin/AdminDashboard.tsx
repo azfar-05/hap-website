@@ -68,12 +68,16 @@ export default function AdminDashboard({
   async function handleToggle(product: Product, field: 'in_stock' | 'featured') {
     const next = !product[field]
     setProducts((prev) =>
-      prev.map((p) => (p.id === product.id ? { ...p, [field]: next } : p))
+      prev.map((p) => {
+        if (p.id !== product.id) return p
+        if (field === 'in_stock' && !next) return { ...p, in_stock: false, featured: false }
+        return { ...p, [field]: next }
+      })
     )
     const result = await toggleProduct(product.id, field, next)
     if ('error' in result) {
       setProducts((prev) =>
-        prev.map((p) => (p.id === product.id ? { ...p, [field]: !next } : p))
+        prev.map((p) => (p.id === product.id ? { ...p, ...product } : p))
       )
       showToast('error', 'Failed to update product.')
     }

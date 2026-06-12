@@ -113,7 +113,9 @@ export async function toggleProduct(
   const supabase = createAdminClient()
   const patch =
     field === 'in_stock'
-      ? { in_stock: value }
+      ? value
+        ? { in_stock: true }
+        : { in_stock: false, featured: false, featured_at: null }
       : { featured: value, featured_at: value ? new Date().toISOString() : null }
   const { error } = await supabase.from('products').update(patch).eq('id', id)
   if (error) return { error: error.message }

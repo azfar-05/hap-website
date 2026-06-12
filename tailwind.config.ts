@@ -50,7 +50,7 @@ const config: Config = {
         content: "1200px",
       },
       height: {
-        "hero-desktop": "85vh",
+        "hero-desktop": "100svh",
       },
       spacing: {
         "section-mobile": "64px",

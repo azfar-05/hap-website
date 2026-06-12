@@ -35,7 +35,7 @@ export default async function HomePage() {
 
         {/* Our Picks — featured products */}
         {featuredProducts.length > 0 && (
-          <section className="py-section-mobile md:py-section-desktop bg-bg">
+          <section className="py-section-mobile md:py-section-desktop bg-surface">
             <div className="max-w-content mx-auto">
               {/* Section header */}
               <div className="px-6 md:px-10 mb-7 md:mb-12 flex items-end justify-between gap-6">
@@ -73,7 +73,7 @@ export default async function HomePage() {
                 {/* Edge fade hints there's more to scroll */}
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-bg to-transparent"
+                  className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-surface to-transparent"
                 />
               </div>
 
