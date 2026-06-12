@@ -10,10 +10,7 @@ import WhatsAppCTA, { WhatsAppIcon } from "@/components/WhatsAppCTA";
 import Price from "@/components/ui/Price";
 import type { Metadata } from "next";
 import type { Product } from "@/types/database.types";
-
-function slugToLabel(slug: string): string {
-  return slug.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-}
+import { slugToLabel } from "@/lib/category";
 
 interface Props {
   params: Promise<{ id: string }>;

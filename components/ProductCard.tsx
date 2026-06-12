@@ -2,14 +2,7 @@ import Link from "next/link";
 import type { Product } from "@/types/database.types";
 import FadingImage from "@/components/ui/FadingImage";
 import Price from "@/components/ui/Price";
-
-const CATEGORY_LABELS: Record<string, string> = {
-  tableware: "Tableware",
-  kitchenware: "Kitchenware",
-  crockery: "Crockery",
-  cutlery: "Cutlery",
-  home_decor: "Home Decor",
-};
+import { slugToLabel } from "@/lib/category";
 
 interface Props {
   product: Product;
@@ -18,7 +11,7 @@ interface Props {
 }
 
 export default function ProductCard({ product, priority = false }: Props) {
-  const label = CATEGORY_LABELS[product.category] ?? product.category;
+  const label = slugToLabel(product.category);
 
   return (
     <Link
