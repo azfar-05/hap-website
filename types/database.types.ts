@@ -1,16 +1,19 @@
-export type Category =
-  | 'tableware'
-  | 'kitchenware'
-  | 'crockery'
-  | 'cutlery'
-  | 'home_decor'
+export type Category = string
+
+export type CategoryRow = {
+  id: string
+  name: string
+  slug: string
+  display_order: number
+  created_at: string
+}
 
 export type Product = {
   id: string
   name: string
   description: string | null
   price: number
-  category: Category
+  category: string
   color: string | null
   size: string | null
   material: string | null
@@ -25,7 +28,7 @@ export type Product = {
 export type ProductInsert = {
   name: string
   price: number
-  category: Category
+  category: string
   images: string[]
   description?: string | null
   color?: string | null
@@ -104,6 +107,33 @@ export type Database = {
           in_stock?: boolean
           featured?: boolean
           featured_at?: string | null
+          created_at?: string
+          [key: string]: unknown
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          id: string
+          name: string
+          slug: string
+          display_order: number
+          created_at: string
+          [key: string]: unknown
+        }
+        Insert: {
+          id?: string
+          name: string
+          slug: string
+          display_order?: number
+          created_at?: string
+          [key: string]: unknown
+        }
+        Update: {
+          id?: string
+          name?: string
+          slug?: string
+          display_order?: number
           created_at?: string
           [key: string]: unknown
         }

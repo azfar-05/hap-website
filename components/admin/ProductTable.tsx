@@ -1,15 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import type { Product } from '@/types/database.types'
-
-const CATEGORY_LABELS: Record<string, string> = {
-  tableware: 'Tableware',
-  kitchenware: 'Kitchenware',
-  crockery: 'Crockery',
-  cutlery: 'Cutlery',
-  home_decor: 'Home Decor',
-}
+import type { Product, CategoryRow } from '@/types/database.types'
 
 function formatPrice(price: number) {
   return `₹${price.toLocaleString('en-IN')}`
@@ -65,6 +57,7 @@ function Toggle({
 
 type Props = {
   products: Product[]
+  categories: CategoryRow[]
   onToggleInStock: (product: Product) => void
   onToggleFeatured: (product: Product) => void
   onEdit: (product: Product) => void
@@ -73,11 +66,15 @@ type Props = {
 
 export default function ProductTable({
   products,
+  categories,
   onToggleInStock,
   onToggleFeatured,
   onEdit,
   onDelete,
 }: Props) {
+  function categoryLabel(slug: string): string {
+    return categories.find((c) => c.slug === slug)?.name ?? slug
+  }
   return (
     <>
       {/* ── Mobile card list (< md) ── */}
@@ -127,7 +124,7 @@ export default function ProductTable({
                   </span>
                   <span className="block mt-0.5 font-body text-[12px] text-muted truncate">
                     {formatPrice(product.price)} ·{' '}
-                    {CATEGORY_LABELS[product.category] ?? product.category}
+                    {categoryLabel(product.category)}
                   </span>
                 </span>
               </button>
@@ -245,7 +242,7 @@ export default function ProductTable({
                 </td>
                 <td className="px-4 py-3">
                   <span className="font-body text-small text-muted">
-                    {CATEGORY_LABELS[product.category] ?? product.category}
+                    {categoryLabel(product.category)}
                   </span>
                 </td>
                 <td className="px-4 py-3">

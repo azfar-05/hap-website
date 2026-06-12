@@ -11,13 +11,9 @@ import Price from "@/components/ui/Price";
 import type { Metadata } from "next";
 import type { Product } from "@/types/database.types";
 
-const CATEGORY_LABELS: Record<string, string> = {
-  tableware: "Tableware",
-  kitchenware: "Kitchenware",
-  crockery: "Crockery",
-  cutlery: "Cutlery",
-  home_decor: "Home Decor",
-};
+function slugToLabel(slug: string): string {
+  return slug.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+}
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -65,7 +61,7 @@ export default async function ProductDetailPage({ params }: Props) {
     .limit(3);
   const relatedProducts: Product[] = (relatedData as Product[] | null) ?? [];
 
-  const label = CATEGORY_LABELS[product.category] ?? product.category;
+  const label = slugToLabel(product.category);
 
   const details: { term: string; value: string }[] = [
     product.color ? { term: "Colour", value: product.color } : null,
@@ -169,7 +165,7 @@ export default async function ProductDetailPage({ params }: Props) {
                 </span>
               </p>
               <h2 className="font-display text-h2 text-hap-text tracking-[0.02em] mb-8 md:mb-10">
-                More {CATEGORY_LABELS[product.category] ?? product.category}
+                More {slugToLabel(product.category)}
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 md:gap-x-6 md:gap-y-4">
                 {relatedProducts.map((related) => (

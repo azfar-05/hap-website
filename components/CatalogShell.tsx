@@ -1,24 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import type { Product, Category } from "@/types/database.types";
+import type { Product, CategoryRow } from "@/types/database.types";
 import FilterBar, { type FilterValue } from "@/components/FilterBar";
 import ProductCard from "@/components/ProductCard";
 
-const CATEGORY_NAMES: Record<Category, string> = {
-  tableware: "tableware",
-  kitchenware: "kitchenware",
-  crockery: "crockery",
-  cutlery: "cutlery",
-  home_decor: "home decor",
-};
-
 interface Props {
   products: Product[];
+  categories: CategoryRow[];
   hasError?: boolean;
 }
 
-export default function CatalogShell({ products, hasError = false }: Props) {
+export default function CatalogShell({ products, categories, hasError = false }: Props) {
   const [activeCategory, setActiveCategory] = useState<FilterValue>("all");
 
   if (hasError) {
@@ -40,7 +33,8 @@ export default function CatalogShell({ products, hasError = false }: Props) {
   function emptyMessage(): string {
     if (activeCategory === "all") return "The collection is being curated.";
     if (activeCategory === "featured") return "No featured pieces yet.";
-    return `No ${CATEGORY_NAMES[activeCategory as Category]} pieces yet.`;
+    const cat = categories.find((c) => c.slug === activeCategory);
+    return `No ${cat?.name.toLowerCase() ?? activeCategory} pieces yet.`;
   }
 
   function emptySub(): string {
@@ -48,12 +42,14 @@ export default function CatalogShell({ products, hasError = false }: Props) {
       return "Our catalog is being prepared — come back soon to explore the full collection.";
     if (activeCategory === "featured")
       return "Check back soon — featured pieces will appear here when the collection is curated.";
-    return `We haven't added any ${CATEGORY_NAMES[activeCategory as Category]} to the collection just yet. Check back soon, or browse everything we have.`;
+    const cat = categories.find((c) => c.slug === activeCategory);
+    const label = cat?.name.toLowerCase() ?? activeCategory;
+    return `We haven't added any ${label} to the collection just yet. Check back soon, or browse everything we have.`;
   }
 
   return (
     <>
-      <FilterBar active={activeCategory} onChange={setActiveCategory} />
+      <FilterBar active={activeCategory} onChange={setActiveCategory} categories={categories} />
 
       <div className="max-w-content mx-auto px-6 md:px-10 pb-section-mobile md:pb-section-desktop">
         {filtered.length === 0 ? (

@@ -3,18 +3,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import type { Product, Category, HeroSlot } from '@/types/database.types'
-
-type CategoryFilter = Category | 'all'
-
-const ADMIN_CATEGORIES: { value: CategoryFilter; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'tableware', label: 'Tableware' },
-  { value: 'kitchenware', label: 'Kitchenware' },
-  { value: 'crockery', label: 'Crockery' },
-  { value: 'cutlery', label: 'Cutlery' },
-  { value: 'home_decor', label: 'Home Decor' },
-]
+import type { Product, CategoryRow, HeroSlot } from '@/types/database.types'
 
 import {
   addProduct,
@@ -23,12 +12,15 @@ import {
   toggleProduct,
   uploadProductImage,
   deleteStorageImages,
+  addCategory,
+  deleteCategory,
 } from '@/app/admin/actions'
 import { storagePathFromUrl } from '@/lib/storage'
 import ProductTable from './ProductTable'
 import ProductFormPanel, { type PanelState, type ProductFormData } from './ProductFormPanel'
 import DeleteDialog, { type DeleteDialogState } from './DeleteDialog'
 import HeroCollageManager from './HeroCollageManager'
+import CategoryManager from './CategoryManager'
 import type { ImageItem } from './ImageUploader'
 
 type Toast = { id: string; message: string; type: 'success' | 'error' }
@@ -36,9 +28,11 @@ type Toast = { id: string; message: string; type: 'success' | 'error' }
 export default function AdminDashboard({
   initialProducts,
   initialHeroSlots,
+  initialCategories,
 }: {
   initialProducts: Product[]
   initialHeroSlots: HeroSlot[]
+  initialCategories: CategoryRow[]
 }) {
   const router = useRouter()
   // Browser client kept only for auth.signOut(). All DB mutations and storage
@@ -46,12 +40,13 @@ export default function AdminDashboard({
   const supabase = useRef(createClient()).current
 
   const [products, setProducts] = useState<Product[]>(initialProducts)
+  const [categories, setCategories] = useState<CategoryRow[]>(initialCategories)
   const [toasts, setToasts] = useState<Toast[]>([])
   const [panelState, setPanelState] = useState<PanelState>({ open: false })
   const [deleteState, setDeleteState] = useState<DeleteDialogState>({ open: false })
   const [isDeleting, setIsDeleting] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [activeCategory, setActiveCategory] = useState<CategoryFilter>('all')
+  const [activeCategory, setActiveCategory] = useState<string>('all')
 
   function showToast(type: 'success' | 'error', message: string) {
     const id = Math.random().toString(36).slice(2)
@@ -161,6 +156,24 @@ export default function AdminDashboard({
     showToast('success', 'Product removed.')
   }
 
+  async function handleAddCategory(name: string, slug: string) {
+    const result = await addCategory(name, slug)
+    if ('error' in result) throw new Error(result.error)
+    setCategories((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), name, slug, display_order: prev.length + 1, created_at: new Date().toISOString() },
+    ])
+    showToast('success', `Category "${name}" added.`)
+  }
+
+  async function handleDeleteCategory(id: string, slug: string) {
+    const result = await deleteCategory(id, slug)
+    if ('error' in result) throw new Error(result.error)
+    setCategories((prev) => prev.filter((c) => c.id !== id))
+    if (activeCategory === slug) setActiveCategory('all')
+    showToast('success', 'Category removed.')
+  }
+
   return (
     <div className="min-h-screen bg-bg">
       {/* Header */}
@@ -256,7 +269,10 @@ export default function AdminDashboard({
                 </div>
                 <div className="overflow-x-auto no-scrollbar">
                   <div className="flex gap-2 pb-0.5">
-                    {ADMIN_CATEGORIES.map(({ value, label }) => {
+                    {[
+                      { value: 'all', label: 'All' },
+                      ...categories.map((c) => ({ value: c.slug, label: c.name })),
+                    ].map(({ value, label }) => {
                       const isActive = activeCategory === value
                       return (
                         <button
@@ -286,6 +302,7 @@ export default function AdminDashboard({
               ) : (
                 <ProductTable
                   products={filteredProducts}
+                  categories={categories}
                   onToggleInStock={(p) => handleToggle(p, 'in_stock')}
                   onToggleFeatured={(p) => handleToggle(p, 'featured')}
                   onEdit={(p) => setPanelState({ open: true, mode: 'edit', product: p })}
@@ -301,6 +318,15 @@ export default function AdminDashboard({
           <HeroCollageManager
             initialSlots={initialHeroSlots}
             onToast={showToast}
+          />
+        </div>
+
+        {/* ── Categories ───────────────────────────────────────────────────── */}
+        <div className="border-t border-border mt-12 pt-10">
+          <CategoryManager
+            categories={categories}
+            onAdd={handleAddCategory}
+            onDelete={handleDeleteCategory}
           />
         </div>
       </main>
@@ -319,6 +345,7 @@ export default function AdminDashboard({
         state={panelState}
         onClose={() => setPanelState({ open: false })}
         onSubmit={handleFormSubmit}
+        categories={categories}
       />
 
       {/* Delete confirmation */}

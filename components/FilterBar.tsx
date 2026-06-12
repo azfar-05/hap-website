@@ -1,25 +1,22 @@
 "use client";
 
-import type { Category } from "@/types/database.types";
+import type { CategoryRow } from "@/types/database.types";
 
-export type FilterValue = "all" | "featured" | Category;
-
-const FILTERS: { value: FilterValue; label: string }[] = [
-  { value: "all", label: "Everything" },
-  { value: "featured", label: "Featured" },
-  { value: "tableware", label: "Tableware" },
-  { value: "kitchenware", label: "Kitchenware" },
-  { value: "crockery", label: "Crockery" },
-  { value: "cutlery", label: "Cutlery" },
-  { value: "home_decor", label: "Home Decor" },
-];
+export type FilterValue = string;
 
 interface Props {
   active: FilterValue;
   onChange: (value: FilterValue) => void;
+  categories: CategoryRow[];
 }
 
-export default function FilterBar({ active, onChange }: Props) {
+export default function FilterBar({ active, onChange, categories = [] }: Props) {
+  const filters = [
+    { value: "all", label: "Everything" },
+    { value: "featured", label: "Featured" },
+    ...categories.map((c) => ({ value: c.slug, label: c.name })),
+  ];
+
   return (
     <div className="sticky top-[64px] md:top-[72px] z-40 bg-bg/95 backdrop-blur-sm border-b border-border/70">
       <div className="relative max-w-content mx-auto">
@@ -28,7 +25,7 @@ export default function FilterBar({ active, onChange }: Props) {
           aria-label="Filter by category"
           className="flex gap-2 px-6 md:px-10 py-3.5 overflow-x-auto no-scrollbar"
         >
-          {FILTERS.map(({ value, label }) => {
+          {filters.map(({ value, label }) => {
             const isActive = active === value;
             return (
               <button

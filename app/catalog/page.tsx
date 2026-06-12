@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import CatalogShell from "@/components/CatalogShell";
-import type { Product } from "@/types/database.types";
+import type { Product, CategoryRow } from "@/types/database.types";
 
 export const metadata = {
   title: "The Collection – HAP",
@@ -13,12 +13,13 @@ export const metadata = {
 export default async function CatalogPage() {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const [{ data, error }, { data: categoriesData }] = await Promise.all([
+    supabase.from("products").select("*").order("created_at", { ascending: false }),
+    supabase.from("categories").select("*").order("display_order", { ascending: true }),
+  ]);
 
   const products: Product[] = data ?? [];
+  const categories: CategoryRow[] = (categoriesData ?? []) as CategoryRow[];
 
   return (
     <>
@@ -43,7 +44,7 @@ export default async function CatalogPage() {
           </div>
         </div>
 
-        <CatalogShell products={products} hasError={!!error} />
+        <CatalogShell products={products} categories={categories} hasError={!!error} />
       </main>
 
       <Footer />

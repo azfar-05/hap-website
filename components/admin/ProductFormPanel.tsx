@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import type { Product, Category } from '@/types/database.types'
+import type { Product, CategoryRow } from '@/types/database.types'
 import ImageUploader, { type ImageItem } from './ImageUploader'
 
 export type PanelState =
@@ -12,7 +12,7 @@ export type PanelState =
 export type ProductFormData = {
   name: string
   price: string
-  category: Category | ''
+  category: string
   description: string
   color: string
   size: string
@@ -31,14 +31,6 @@ const EMPTY_FORM: ProductFormData = {
   imageItems: [],
 }
 
-const CATEGORIES: { value: Category; label: string }[] = [
-  { value: 'tableware', label: 'Tableware' },
-  { value: 'kitchenware', label: 'Kitchenware' },
-  { value: 'crockery', label: 'Crockery' },
-  { value: 'cutlery', label: 'Cutlery' },
-  { value: 'home_decor', label: 'Home Decor' },
-]
-
 function fromProduct(p: Product): ProductFormData {
   return {
     name: p.name,
@@ -56,9 +48,10 @@ type Props = {
   state: PanelState
   onClose: () => void
   onSubmit: (data: ProductFormData, productId?: string) => Promise<void>
+  categories: CategoryRow[]
 }
 
-export default function ProductFormPanel({ state, onClose, onSubmit }: Props) {
+export default function ProductFormPanel({ state, onClose, onSubmit, categories }: Props) {
   const [form, setForm] = useState<ProductFormData>(EMPTY_FORM)
   const [submitted, setSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -91,6 +84,7 @@ export default function ProductFormPanel({ state, onClose, onSubmit }: Props) {
     Number(form.price) > 0 &&
     form.category !== '' &&
     form.imageItems.length > 0
+
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -202,7 +196,7 @@ export default function ProductFormPanel({ state, onClose, onSubmit }: Props) {
             </label>
             <select
               value={form.category}
-              onChange={(e) => set('category', e.target.value as Category | '')}
+              onChange={(e) => set('category', e.target.value)}
               className={`w-full font-body text-body text-hap-text bg-bg border rounded-input px-4 py-3 outline-none transition-colors cursor-pointer ${
                 categoryError
                   ? 'border-red-400 bg-red-50/50'
@@ -210,9 +204,9 @@ export default function ProductFormPanel({ state, onClose, onSubmit }: Props) {
               }`}
             >
               <option value="">Select a category…</option>
-              {CATEGORIES.map((c) => (
-                <option key={c.value} value={c.value}>
-                  {c.label}
+              {categories.map((c) => (
+                <option key={c.id} value={c.slug}>
+                  {c.name}
                 </option>
               ))}
             </select>

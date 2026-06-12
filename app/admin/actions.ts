@@ -180,6 +180,61 @@ export async function deleteStorageImages(
   return { ok: true }
 }
 
+// ── Categories ────────────────────────────────────────────────────────────────
+
+export async function addCategory(
+  name: string,
+  slug: string
+): Promise<{ error: string } | { ok: true }> {
+  const denied = await requireAdmin()
+  if (denied) return denied
+
+  const supabase = createAdminClient()
+  const { data: existing } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('slug', slug)
+    .maybeSingle()
+  if (existing) return { error: `A category with slug "${slug}" already exists.` }
+
+  const { data: maxRow } = await supabase
+    .from('categories')
+    .select('display_order')
+    .order('display_order', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  const nextOrder = ((maxRow?.display_order as number | null) ?? 0) + 1
+
+  const { error } = await supabase
+    .from('categories')
+    .insert({ name: name.trim(), slug: slug.trim(), display_order: nextOrder })
+  if (error) return { error: error.message }
+  return { ok: true }
+}
+
+export async function deleteCategory(
+  id: string,
+  slug: string
+): Promise<{ error: string } | { ok: true }> {
+  const denied = await requireAdmin()
+  if (denied) return denied
+
+  const supabase = createAdminClient()
+  const { count } = await supabase
+    .from('products')
+    .select('id', { count: 'exact', head: true })
+    .eq('category', slug)
+  if (count && count > 0) {
+    return {
+      error: `Please reassign or remove the ${count} ${count === 1 ? 'product' : 'products'} in this category before deleting it.`,
+    }
+  }
+
+  const { error } = await supabase.from('categories').delete().eq('id', id)
+  if (error) return { error: error.message }
+  return { ok: true }
+}
+
 // ── Hero collage ──────────────────────────────────────────────────────────────
 
 export async function upsertHeroSlot(
