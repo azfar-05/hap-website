@@ -63,7 +63,7 @@ export default function ProductCard({ product, priority = false }: Props) {
           {product.name}
         </h3>
         <p className="font-body text-[0.95rem] text-brand font-semibold mt-1.5">
-          <Price value={product.price} />
+          <Price value={product.price} originalPrice={product.original_price} />
         </p>
       </div>
     </Link>

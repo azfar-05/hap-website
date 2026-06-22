@@ -12,6 +12,7 @@ export type PanelState =
 export type ProductFormData = {
   name: string
   price: string
+  originalPrice: string
   category: string
   description: string
   color: string
@@ -23,6 +24,7 @@ export type ProductFormData = {
 const EMPTY_FORM: ProductFormData = {
   name: '',
   price: '',
+  originalPrice: '',
   category: '',
   description: '',
   color: '',
@@ -35,6 +37,7 @@ function fromProduct(p: Product): ProductFormData {
   return {
     name: p.name,
     price: String(p.price),
+    originalPrice: p.original_price != null ? String(p.original_price) : '',
     category: p.category,
     description: p.description ?? '',
     color: p.color ?? '',
@@ -76,12 +79,16 @@ export default function ProductFormPanel({ state, onClose, onSubmit, categories 
 
   const nameError = submitted && form.name.trim() === ''
   const priceError = submitted && (form.price === '' || Number(form.price) <= 0)
+  const originalPriceInvalid =
+    form.originalPrice.trim() !== '' && !(Number(form.originalPrice) > Number(form.price))
+  const originalPriceError = submitted && originalPriceInvalid
   const categoryError = submitted && form.category === ''
   const imagesError = submitted && form.imageItems.length === 0
 
   const isValid =
     form.name.trim() !== '' &&
     Number(form.price) > 0 &&
+    !originalPriceInvalid &&
     form.category !== '' &&
     form.imageItems.length > 0
 
@@ -186,6 +193,32 @@ export default function ProductFormPanel({ state, onClose, onSubmit, categories 
             />
             {priceError && (
               <p className="mt-1 font-body text-small text-red-600">A valid price is required.</p>
+            )}
+          </div>
+
+          {/* Original price (optional) — shown struck through next to the price when set */}
+          <div>
+            <label className="block font-body text-small font-medium text-muted mb-1.5">
+              Original price (₹){' '}
+              <span className="font-normal text-muted/60">(optional)</span>
+            </label>
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={form.originalPrice}
+              onChange={(e) => set('originalPrice', e.target.value)}
+              placeholder="e.g. 1500 — leave blank to hide"
+              className={`w-full font-body text-body text-hap-text bg-bg border rounded-input px-4 py-3 outline-none transition-colors ${
+                originalPriceError
+                  ? 'border-red-400 bg-red-50/50'
+                  : 'border-border focus:border-brand'
+              }`}
+            />
+            {originalPriceError && (
+              <p className="mt-1 font-body text-small text-red-600">
+                Original price must be higher than the current price.
+              </p>
             )}
           </div>
 

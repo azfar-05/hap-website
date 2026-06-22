@@ -11,6 +11,7 @@ export type Product = {
   name: string
   description: string | null
   price: number
+  original_price: number | null
   category: string
   color: string | null
   size: string | null
@@ -31,6 +32,7 @@ export type ProductInsert = {
   category: string
   images: string[]
   description?: string | null
+  original_price?: number | null
   color?: string | null
   size?: string | null
   material?: string | null
@@ -67,6 +69,7 @@ export type Database = {
           name: string
           description: string | null
           price: number
+          original_price: number | null
           category: string
           color: string | null
           size: string | null
@@ -85,6 +88,7 @@ export type Database = {
           name: string
           description?: string | null
           price: number
+          original_price?: number | null
           category: string
           color?: string | null
           size?: string | null
@@ -103,6 +107,7 @@ export type Database = {
           name?: string
           description?: string | null
           price?: number
+          original_price?: number | null
           category?: string
           color?: string | null
           size?: string | null

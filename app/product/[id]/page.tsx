@@ -107,7 +107,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
               {/* Price */}
               <p className="font-body text-[1.35rem] text-brand font-semibold">
-                <Price value={product.price} />
+                <Price value={product.price} originalPrice={product.original_price} />
               </p>
 
               <div aria-hidden="true" className="w-10 h-px bg-border my-7" />

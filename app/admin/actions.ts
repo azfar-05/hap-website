@@ -72,6 +72,7 @@ function buildFields(formData: ProductFormData, imageUrls: string[]) {
   return {
     name: formData.name.trim(),
     price: Number(formData.price),
+    original_price: formData.originalPrice.trim() === '' ? null : Number(formData.originalPrice),
     category: formData.category as string,
     description: formData.description.trim() || null,
     color: formData.color.trim() || null,
