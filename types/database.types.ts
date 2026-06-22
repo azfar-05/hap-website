@@ -166,6 +166,30 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_login_attempts: {
+        Row: {
+          email: string
+          failed_count: number
+          locked_until: string | null
+          updated_at: string
+          [key: string]: unknown
+        }
+        Insert: {
+          email: string
+          failed_count?: number
+          locked_until?: string | null
+          updated_at?: string
+          [key: string]: unknown
+        }
+        Update: {
+          email?: string
+          failed_count?: number
+          locked_until?: string | null
+          updated_at?: string
+          [key: string]: unknown
+        }
+        Relationships: []
+      }
     }
     Views: {
       [key: string]: never

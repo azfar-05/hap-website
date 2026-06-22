@@ -8,6 +8,9 @@ import type { ProductFormData } from '@/components/admin/ProductFormPanel'
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
+const LOGIN_ATTEMPT_LIMIT = 5
+const LOGIN_LOCKOUT_MS = 15 * 60 * 1000
+
 export async function loginAction(
   email: string,
   password: string
@@ -15,11 +18,33 @@ export async function loginAction(
   if (email !== process.env.ADMIN_EMAIL) {
     return { error: 'Access denied.' }
   }
+
+  const adminClient = createAdminClient()
+  const { data: attempt } = await adminClient
+    .from('admin_login_attempts')
+    .select('failed_count, locked_until')
+    .eq('email', email)
+    .maybeSingle()
+
+  if (attempt?.locked_until && new Date(attempt.locked_until) > new Date()) {
+    const minutesLeft = Math.ceil((new Date(attempt.locked_until).getTime() - Date.now()) / 60000)
+    return { error: `Too many attempts. Try again in ${minutesLeft} minute${minutesLeft === 1 ? '' : 's'}.` }
+  }
+
   const supabase = await createClient()
   const { error } = await supabase.auth.signInWithPassword({ email, password })
+
   if (error) {
+    const failedCount = (attempt?.locked_until ? 0 : attempt?.failed_count ?? 0) + 1
+    const lockedUntil =
+      failedCount >= LOGIN_ATTEMPT_LIMIT ? new Date(Date.now() + LOGIN_LOCKOUT_MS).toISOString() : null
+    await adminClient
+      .from('admin_login_attempts')
+      .upsert({ email, failed_count: failedCount, locked_until: lockedUntil, updated_at: new Date().toISOString() })
     return { error: 'Incorrect email or password.' }
   }
+
+  await adminClient.from('admin_login_attempts').delete().eq('email', email)
   redirect('/admin')
 }
 
