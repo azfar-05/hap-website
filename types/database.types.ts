@@ -1,5 +1,3 @@
-export type Category = string
-
 export type CategoryRow = {
   id: string
   name: string
@@ -21,6 +19,8 @@ export type Product = {
   in_stock: boolean
   featured: boolean
   featured_at: string | null
+  card_shape: string | null
+  focal_point: string | null
   created_at: string
 }
 
@@ -75,6 +75,8 @@ export type Database = {
           in_stock: boolean
           featured: boolean
           featured_at: string | null
+          card_shape: string | null
+          focal_point: string | null
           created_at: string
           [key: string]: unknown
         }
@@ -91,6 +93,8 @@ export type Database = {
           in_stock?: boolean
           featured?: boolean
           featured_at?: string | null
+          card_shape?: string | null
+          focal_point?: string | null
           created_at?: string
           [key: string]: unknown
         }
@@ -107,6 +111,8 @@ export type Database = {
           in_stock?: boolean
           featured?: boolean
           featured_at?: string | null
+          card_shape?: string | null
+          focal_point?: string | null
           created_at?: string
           [key: string]: unknown
         }
